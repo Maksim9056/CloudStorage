@@ -1,7 +1,106 @@
 ﻿@page "/"
+@page "/Authorization"
+@using CloudStorageClass.CloudStorageModel
+@rendermode InteractiveServer
+@inject IHttpClientFactory ClientFactory
+@inject NavigationManager NavigationManager
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
+@inject ProtectedLocalStorage ProtectedLocalStore
+<h1>Авторизация</h1>
 
-<PageTitle>Home</PageTitle>
 
-<h1>Hello, world!</h1>
 
-Welcome to your new app.
+<div>
+    <p>Почта</p>
+    <input type="email" @bind="Email" />
+</div>
+
+<div>
+    <p>Пароль</p>
+    <input type="password" @bind="Password" />
+</div>
+
+<style>
+    .button {
+        margin-top: 10px; /* Измените значение по вашему усмотрению */
+    }
+
+    .another-button {
+        margin-top: 10px;
+        margin-right: 90px; /* Измените значение по вашему усмотрению */
+    }
+</style>
+
+<div>
+    <button type="submit" class="button" @onclick="SubmitForm">Войти</button>
+</div>
+
+<div>
+    <button type="submit" class="another-button" @onclick="RegForm">Регистрация</button>
+</div>
+@code {
+    [Parameter]
+    public string urlAddress { get; set; } // Corrected property name
+
+    public string Email { get; set; } // Corrected property name
+    public string Password { get; set; } // Corrected property name
+
+    HttpClient httpClient = null!;
+    string url = "https://localhost:7262/api/Users/";
+    User users;
+
+    private async void SubmitForm()
+    {
+        try
+        {
+            if (!string.IsNullOrEmpty(Password) && !string.IsNullOrEmpty(Email))
+            {
+                httpClient = ClientFactory.CreateClient();
+                httpClient.BaseAddress = new Uri(url + Email + "," + Password);
+                await LoadData();
+            }
+        }
+        catch (Exception)
+        {
+
+        }
+    }
+
+    async Task LoadData()
+    {
+        try
+        {
+            users = await httpClient.GetFromJsonAsync<User>(httpClient.BaseAddress);
+            if (users == null)
+            {
+
+            }
+            else
+            {
+                // userStateService.users = users;
+                await ProtectedLocalStore.SetAsync("usersid", users.Id);
+                await ProtectedLocalStore.SetAsync("password", users.Password);
+                await ProtectedLocalStore.SetAsync("mail", users.Email);
+                NavigationManager.NavigateTo($"/Account");
+            }
+        }
+        catch (Exception)
+        {
+
+        }
+    }
+
+
+    private void RegForm()
+    {
+        try
+        {
+            NavigationManager.NavigateTo($"/RegUser");
+
+        }
+        catch (Exception)
+        {
+
+        }
+    }
+}

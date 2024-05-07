@@ -24,6 +24,10 @@
         /// </summary>
         public byte [] Fille { get; set; }
         /// <summary>
+        /// Будет нужно для хранилища
+        /// </summary>
+        public string TypeFiles { get; set; }
+        /// <summary>
         /// Размер
         /// </summary>
         public long Size { get; set; }

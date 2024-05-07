@@ -1,0 +1,285 @@
+﻿@page "/Account"
+@using CloudStorageClass.CloudStorageModel
+@rendermode InteractiveServer
+@inject IHttpClientFactory ClientFactory
+@inject NavigationManager NavigationManager
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
+@using System.Text
+@using Newtonsoft.Json
+@inject ProtectedLocalStorage ProtectedLocalStore
+<button class="btn btn-primary" @onclick="AddFormFilles">Добавить файл</button>
+<div class="ml-3 mt-3">
+    @if (AddFilles)
+    {
+        <div class="form-group">
+            <InputFile OnChange="@HandleFileUpload" />
+        </div>
+    }
+</div>
+<h3>UserAccount</h3>
+
+<div class="d-flex justify-content-end">
+    <div class="mt-3">
+        <div class="form-group">
+            <label for="Id">Id:</label>
+            <input type="number" class="form-control" @bind="Filles.Id">
+        </div>
+        <div class="form-group">
+            <label for="StoragePath">Локальный путь:</label>
+            <input type="text" class="form-control" @bind="Filles.StoragePath">
+        </div>
+        <div class="form-group">
+            <label for="NameFille">Имя файла:</label>
+            <input type="text" class="form-control" @bind="Filles.NameFille">
+        </div>
+        <div class="form-group">
+            <label for="Size">Размер:</label>
+            <input type="number" class="form-control" @bind="Filles.Size">
+        </div>
+
+        <button class="btn btn-primary mr-2" @onclick="FilterFiles">Применить фильтр</button>
+
+        <button class="btn btn-success" @onclick="RefreshPage">Обновить</button>
+    </div>
+
+  
+</div>
+
+<!-- Display Section -->
+@if (files != null && files.Any())
+{
+    <table class="table table-striped mt-3">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>Size</th>
+                <th>User Id</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var file in files)
+            {
+                <tr>
+                    <td>@file.Id</td>
+                    <td>@file.NameFille</td>
+                    <td>@file.Size</td>
+                    <td>@file.UserId</td>
+                    <td>
+                        <button class="btn btn-danger" @onclick="() => DeleteFile(file.Id)">Удалить</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>Файлы не найдены.</p>
+}
+
+@code {
+
+    HttpClient httpClient = null!;
+    User users;
+    string UrlFillesApi = "https://localhost:7262/api/Filles/";
+
+    Filles Filles = new Filles{};
+    List<Filles> files = new List<Filles>();
+    bool AddFilles  = false;
+    public byte[] bytes;
+    string url = "https://localhost:7262/api/Filles";
+
+    // protected override async Task OnInitializedAsync()
+    // {
+    //     try
+    //     {
+
+
+    //         // isConnected = true;
+    //         string UrlGetRequest = "https://localhost:7262/api/Users/";
+
+    //         var result = await ProtectedLocalStore.GetAsync<int>("usersid");
+    //         var usersId = result.Success ? result.Value : 0;
+    //         var results = await ProtectedLocalStore.GetAsync<string>("password");
+    //         var password = results.Success ? results.Value : "";
+    //         var resultss = await ProtectedLocalStore.GetAsync<string>("mail");
+    //         var mail = resultss.Success ? resultss.Value : "";
+    //         httpClient = ClientFactory.CreateClient();
+    //         httpClient.BaseAddress = new Uri(UrlGetRequest + mail + "," + password);
+
+    //         users = await httpClient.GetFromJsonAsync<User>(httpClient.BaseAddress);
+
+
+    //         httpClient = ClientFactory.CreateClient();
+    //         httpClient.BaseAddress = new Uri(UrlFillesApi + usersId);
+    //         files = await httpClient.GetFromJsonAsync<List<Filles>>(httpClient.BaseAddress);
+
+    //         StateHasChanged();
+    //     }
+    //     catch (Exception)
+    //     {
+
+    //     }
+    // }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        try
+        {
+            if (firstRender)
+            {  
+                        string UrlGetRequest = "https://localhost:7262/api/Users/";
+
+            var result = await ProtectedLocalStore.GetAsync<int>("usersid");
+            var usersId = result.Success ? result.Value : 0;
+            var results = await ProtectedLocalStore.GetAsync<string>("password");
+            var password = results.Success ? results.Value : "";
+            var resultss = await ProtectedLocalStore.GetAsync<string>("mail");
+            var mail = resultss.Success ? resultss.Value : "";
+            httpClient = ClientFactory.CreateClient();
+            httpClient.BaseAddress = new Uri(UrlGetRequest + mail + "," + password);
+
+            users = await httpClient.GetFromJsonAsync<User>(httpClient.BaseAddress);
+
+
+            httpClient = ClientFactory.CreateClient();
+            httpClient.BaseAddress = new Uri(UrlFillesApi + usersId);
+            files = await httpClient.GetFromJsonAsync<List<Filles>>(httpClient.BaseAddress);
+
+            StateHasChanged();
+            }
+        }
+        catch (Exception)
+        {
+
+        }
+    }
+    private void RefreshPage()
+    {
+        try
+        {
+            NavigationManager.NavigateTo(NavigationManager.Uri, forceLoad: true);
+        }
+        catch (Exception)
+        {
+
+
+        }
+    }
+    private void FilterFiles()
+    {
+        try
+        {
+            // Применение фильтра к списку файлов
+            files = files.Where(f =>
+                (Filles.Id == 0 || f.Id == Filles.Id) &&
+                (string.IsNullOrEmpty(Filles.StoragePath) || f.StoragePath.Contains(Filles.StoragePath)) &&
+                (string.IsNullOrEmpty(Filles.NameFille) || f.NameFille.Contains(Filles.NameFille)) &&
+                (Filles.Size == 0 || f.Size == Filles.Size)
+            ).ToList();
+            StateHasChanged();
+        }
+        catch (Exception)
+        {
+
+
+        }
+    }
+
+    void AddFormFilles()
+    {
+        AddFilles = true;
+        StateHasChanged();
+
+    }
+
+    async Task DeleteFile(int fileId)
+    {
+        try
+        {
+            httpClient = ClientFactory.CreateClient();
+            httpClient.BaseAddress = new Uri(UrlFillesApi + fileId);
+            await httpClient.DeleteAsync(httpClient.BaseAddress);
+        }
+        catch (Exception)
+        {
+
+
+        }
+    }
+
+    public string json(object obj, int i)
+    {
+        try
+        {
+            string str = "";
+            Filles files = null;
+            User users = null;
+            switch (i)
+            {
+                case 1:
+                    files = (Filles)obj;
+                    str = JsonConvert.SerializeObject(files);
+                    break;
+                case 2:
+                    users = (User)obj;
+                    str = JsonConvert.SerializeObject(users);
+                    break;
+
+            }
+            return str;
+        }
+        catch (Exception)
+        {
+            return string.Empty;
+        }
+    }
+
+    private async Task HandleFileUpload(InputFileChangeEventArgs e)
+    {
+        try
+        {
+            string NameFile = "";
+            using (MemoryStream ms = new MemoryStream())
+            {
+                NameFile = e.File.Name;
+                //Открыть один раз  дать значение
+                var mss = e.File.OpenReadStream();
+
+                // Копируем в поток
+                await mss.CopyToAsync(ms);
+                //Преобразуем в данные В МАССИВ BYTE[]
+                bytes = ms.ToArray();
+            }
+
+            Filles s = new Filles { Id = 0, Size = bytes.Length, Fille = bytes, NameFille = NameFile, UserId = users.Id };
+            string jsonString = json(s, 1);
+            httpClient = ClientFactory.CreateClient();
+            httpClient.BaseAddress = new Uri(url);
+            HttpContent content = new StringContent(jsonString, Encoding.UTF8, "text/plain");
+
+            var response = await httpClient.PostAsync(url, content);
+            // Проверяем, успешно ли выполнен запрос
+            if (response.IsSuccessStatusCode)
+            {
+                // Считываем содержимое ответа в строку
+                string responseContent = await response.Content.ReadAsStringAsync();
+
+                // Теперь вы можете работать с содержимым ответа
+                Console.WriteLine("Содержимое ответа: " + responseContent);
+            }
+            else
+            {
+                // Если запрос не удался, вы можете обработать соответствующий случай здесь
+                Console.WriteLine("Ошибка: " + response.StatusCode);
+            }
+            AddFilles = false;
+            StateHasChanged();
+        }
+        catch (Exception)
+        {
+
+        }
+    }
+}

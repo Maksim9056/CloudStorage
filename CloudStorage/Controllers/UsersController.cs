@@ -22,6 +22,27 @@ namespace CloudStorageWebAPI.Controllers
             _context = context;
         }
 
+
+        [HttpGet("{Email},{Password}")]
+        public async Task<ActionResult<User>> GetUserAuthorization(string Email, string Password)
+        {
+            try
+            {
+                var user = await _context.Users.FirstOrDefaultAsync(u=>u.Email == Email && u.Password == Password);
+
+                if (user == null)
+                {
+                    return NotFound();
+                }
+                return user;
+
+            }
+            catch (Exception ex)
+            {
+                return NotFound(ex.Message);
+            }
+        }
+
         //// GET: api/Users
         //[HttpGet]
         //public async Task<ActionResult<IEnumerable<User>>> GetUsers()
@@ -36,7 +57,6 @@ namespace CloudStorageWebAPI.Controllers
             try
             {
                 var user = await _context.Users.FindAsync(id);
-
                 if (user == null)
                 {
                     return NotFound();
@@ -88,8 +108,19 @@ namespace CloudStorageWebAPI.Controllers
         {
             try
             {
-                _context.Users.Add(user);
-                await _context.SaveChangesAsync();
+              var usersq =  await _context.Users.FirstOrDefaultAsync(u => u.Name == user.Name);
+                if (usersq == null)
+                {
+                    _context.Users.Add(user);
+                    await _context.SaveChangesAsync();
+                }
+                else
+                {
+                    return NotFound("Такой пользователь уже есть с таким именем");
+
+
+                }
+
             }
             catch (Exception ex)
             {

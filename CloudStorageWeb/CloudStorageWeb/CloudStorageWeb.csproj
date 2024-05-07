@@ -7,8 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\CloudStorageClass\CloudStorageClass.csproj" />
     <ProjectReference Include="..\CloudStorageWeb.Client\CloudStorageWeb.Client.csproj" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="8.0.4" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
 
 </Project>

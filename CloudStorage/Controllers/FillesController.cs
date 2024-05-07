@@ -29,7 +29,7 @@ namespace CloudStorageWebAPI.Controllers
         //    return await _context.GroupsChats.Where.ToListAsync();
         //}
 
-        [HttpGet]
+        [HttpGet("{id}")]
         public async Task<ActionResult<IEnumerable<Filles>>> GetGroupsChats(int id)
         {
             try
@@ -94,6 +94,8 @@ namespace CloudStorageWebAPI.Controllers
         {
             try
             {
+                string fileExtension = Path.GetExtension(filles.NameFille).Trim('.');
+                filles.TypeFiles = fileExtension;
                 var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == filles.UserId);
                 if (user == null)
                 {

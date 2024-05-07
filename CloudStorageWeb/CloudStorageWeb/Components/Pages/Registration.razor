@@ -1,0 +1,157 @@
+﻿@page "/RegUser"
+@rendermode InteractiveServer
+@using System.Net.Http.Json
+@using System.Text
+@using CloudStorageClass.CloudStorageModel
+@using Newtonsoft.Json
+@using static System.Reflection.Metadata.BlobBuilder
+@inject IHttpClientFactory ClientFactory
+@inject NavigationManager NavigationManager
+
+
+<style>
+    div {
+        margin-bottom: 20px;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 5px;
+    }
+
+    input[type="text"],
+    input[type="password"],
+    input[type="email"],
+    input[type="tel"] {
+        width: 50%;
+        padding: 8px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        box-sizing: border-box; /* чтобы входное поле учитывало границу в своих размерах */
+        font-size: 16px;
+    }
+
+    media (min-width: 768px) {
+        /* Пример адаптации для устройств с шириной экрана 768px и более */
+    input [type="text"], input[type="password"], input[type="email"], input[type="tel"]
+    {
+        width: 50%; /* Изменяем ширину полей на 50% при ширине экрана 768px и более */
+    }
+    }
+</style>
+
+<div>
+    <label>Имя</label>
+    <input type="text" @bind="Username">
+    @if (UserActive == true)
+    {
+        <p style="color:red;">Username already exists. Please choose another one.</p>
+    }
+</div>
+
+<div>
+    <label>Пароль</label>
+    <input type="password" @bind="Password">
+</div>
+
+<div>
+    <label>Почта</label>
+    <input type="email" @bind="Email">
+</div>
+
+
+
+
+<button class="btn btn-primary" @onclick="SubmitForm">Зарегистрироваться</button>
+
+@code {
+
+    string urluser = "https://localhost:7262/api/Users";
+    bool UserActive { get; set; } = false;
+    public string Username { get; set; }
+    public string Password { get; set; }
+    public string Email { get; set; }
+    HttpClient httpClient = null!;
+
+    public string json(object obj, int i)
+    {
+        try
+        {
+            string str = "";
+            Filles files = null;
+            User users = null;
+            switch (i)
+            {
+                case 1:
+                    files = (Filles)obj;
+                    str = JsonConvert.SerializeObject(files);
+                    break;
+                case 2:
+                    users = (User)obj;
+                    str = JsonConvert.SerializeObject(users);
+                    break;
+
+            }
+            return str;
+        }
+        catch (Exception)
+        {
+            return string.Empty;
+        }
+    }
+
+    private async void SubmitForm()
+    {
+        try
+        {
+            if (!string.IsNullOrEmpty(Username) && !string.IsNullOrEmpty(Password) && !string.IsNullOrEmpty(Email))
+            {
+                User users = new User {  Id=0,Name= Username,Password= Password,Email= Email };
+                string str = json(users, 2);
+                HttpContent content = new StringContent(str, Encoding.UTF8, "application/json");
+                httpClient = ClientFactory.CreateClient();
+                httpClient.BaseAddress = new Uri(urluser);
+                var response = await httpClient.PostAsync(urluser, content);
+                // Проверяем, успешно ли выполнен запрос
+                if (response.IsSuccessStatusCode)
+                {
+                    // Считываем содержимое ответа в строку
+                    string responseContent = await response.Content.ReadAsStringAsync();
+
+                    // Files = JsonConvert.DeserializeObject<User>(responseContent);
+                    // Теперь вы можете работать с содержимым ответа
+                    Console.WriteLine("Содержимое ответа: " + responseContent);
+                    NavigationManager.NavigateTo($"/Authorization");
+
+                }
+                else
+                {
+                    string responseContent = await response.Content.ReadAsStringAsync();
+
+                    if (responseContent.Contains("Такой пользователь уже есть с таким именем"))
+                    {
+                        UserActive = true;
+
+                        StateHasChanged();
+                        // Делайте что-то, если сообщение найдено
+                        Console.WriteLine("Такой пользователь уже существует");
+                    }
+                    else
+                    {
+                        // Делайте что-то, если сообщение не найдено
+                        Console.WriteLine("Пользователь успешно создан");
+                    }
+
+
+                    // Если запрос не удался, вы можете обработать соответствующий случай здесь
+                    Console.WriteLine("Ошибка: " + response.StatusCode);
+                }
+            }
+        }
+        catch (Exception)
+        {
+
+        }
+    }
+
+}
