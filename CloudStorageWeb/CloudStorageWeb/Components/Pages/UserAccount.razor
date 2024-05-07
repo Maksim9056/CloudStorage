@@ -188,9 +188,35 @@ else
     [JSInvokable]
     public async Task AddFile(string name, long size, string type, string content)
     {
-        var file = new Filles { NameFille = name, Size = size, TypeFiles = type, StoragePath = content };
+        try
+        {
+        var fileExtension = content.Replace("data:application/octet-stream;base64,", "");
+
+        var file = new Filles { NameFille = name, Size = size, TypeFiles = type, Fille =Convert.FromBase64String(fileExtension )};
+        Filles s = new Filles { Id = 0, Size = size, Fille = Convert.FromBase64String(fileExtension), NameFille = name, TypeFiles = "", StoragePath = "", UserId = users.Id };
+        string jsonString = json(s, 1);
+        httpClient = ClientFactory.CreateClient();
+        httpClient.BaseAddress = new Uri(url);
+        HttpContent contents = new StringContent(jsonString, Encoding.UTF8, "application/json");
+        var response = await httpClient.PostAsync(url, contents);
+
+        if (response.IsSuccessStatusCode)
+        {
+            string responseContent = await response.Content.ReadAsStringAsync();
+            Console.WriteLine("Содержимое ответа: " + responseContent);
+        }
+        else
+        {
+            Console.WriteLine("Ошибка: " + response.StatusCode);
+        }
         files.Add(file);
+
         StateHasChanged(); // Notify Blazor that the UI should be updated
+        }
+        catch (Exception)
+        {
+
+        }
     }
 
     // protected override async Task OnInitializedAsync()
