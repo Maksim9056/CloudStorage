@@ -1,11 +1,18 @@
 ﻿@page "/Account"
 @using CloudStorageClass.CloudStorageModel
+@using System.Collections.Generic
+@using System.IO
+@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.JSInterop
+@using Microsoft.AspNetCore.Components.Web
+
 @rendermode InteractiveServer
 @inject IHttpClientFactory ClientFactory
 @inject NavigationManager NavigationManager
 @using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
 @using System.Text
 @using Newtonsoft.Json
+@using System.Text.Json
 @inject ProtectedLocalStorage ProtectedLocalStore
 <button class="btn btn-primary" @onclick="AddFormFilles">Добавить файл</button>
 <div class="ml-3 mt-3">
@@ -13,6 +20,7 @@
     {
         <div class="form-group">
             <InputFile OnChange="@HandleFileUpload" />
+       
         </div>
     }
 </div>
@@ -44,6 +52,82 @@
 
   
 </div>
+
+<script>
+    window.initDragAndDrop = (dotnetHelper) => {
+        const dropArea = document.getElementById('dropArea');
+
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, preventDefaults, false)
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropArea.addEventListener(eventName, highlight, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, unhighlight, false);
+        });
+
+        function highlight() {
+            dropArea.classList.add('highlight');
+        }
+
+        function unhighlight() {
+            dropArea.classList.remove('highlight');
+        }
+
+        dropArea.addEventListener('drop', handleDrop, false);
+
+        async function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+
+            // Iterate through the dropped files and call the AddFile method in C#
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const reader = new FileReader();
+                reader.onload = function (event) {
+                    dotnetHelper.invokeMethodAsync('AddFile', file.name, file.size, file.type, event.target.result);
+                };
+                reader.readAsDataURL(file);
+            }
+
+            // Reset the drop area style
+            dropArea.classList.remove('highlight');
+        }
+    };
+
+</script> 
+
+<style>
+    #dropArea {
+        border: 2px dashed #ccc;
+        border-radius: 5px;
+        padding: 20px;
+        text-align: center;
+    }
+
+        #dropArea.highlight {
+            background-color: #f0f0f0;
+        }
+</style>
+
+@if (files.Count > 0)
+{
+    <h4>Uploaded Files:</h4>
+    <ul>
+        @foreach (var file in files)
+        {
+            <li>@file.NameFille - @file.Size bytes</li>
+        }
+    </ul>
+}
 
 <!-- Display Section -->
 @if (files != null && files.Any())
@@ -82,6 +166,10 @@ else
     <p>Файлы не найдены.</p>
 }
 
+<div id="dropArea">
+    <p>Drag and drop files here</p>
+</div>
+
 @code {
 
     HttpClient httpClient = null!;
@@ -93,6 +181,17 @@ else
     bool AddFilles  = false;
     public byte[] bytes;
     string url = "https://localhost:7262/api/Filles";
+
+    [Inject]
+    public IJSRuntime JSRuntime { get; set; }
+
+    [JSInvokable]
+    public async Task AddFile(string name, long size, string type, string content)
+    {
+        var file = new Filles { NameFille = name, Size = size, TypeFiles = type, StoragePath = content };
+        files.Add(file);
+        StateHasChanged(); // Notify Blazor that the UI should be updated
+    }
 
     // protected override async Task OnInitializedAsync()
     // {
@@ -134,6 +233,8 @@ else
             {  
                         string UrlGetRequest = "https://localhost:7262/api/Users/";
 
+            await JSRuntime.InvokeVoidAsync("initDragAndDrop", DotNetObjectReference.Create(this));
+            
             var result = await ProtectedLocalStore.GetAsync<int>("usersid");
             var usersId = result.Success ? result.Value : 0;
             var results = await ProtectedLocalStore.GetAsync<string>("password");
