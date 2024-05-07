@@ -1,4 +1,7 @@
 
+using CloudStorageWebAPI.Data;
+using Microsoft.EntityFrameworkCore;
+
 namespace CloudStorage
 {
     public class Program
@@ -13,6 +16,8 @@ namespace CloudStorage
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+            builder.Services.AddDbContext<DB>(options =>
+            options.UseNpgsql(builder.Configuration.GetConnectionString("CloudStorageAPI") ?? throw new InvalidOperationException("Connection string 'ExamAPIContext' not found.")));
 
             var app = builder.Build();
 

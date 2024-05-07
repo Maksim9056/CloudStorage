@@ -5,6 +5,12 @@ VisualStudioVersion = 17.9.34728.123
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudStorageWebAPI", "CloudStorage\CloudStorageWebAPI.csproj", "{6A4C27B0-15D9-4649-9C2A-09AB9E0A68A0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudStorageClass", "CloudStorageClass\CloudStorageClass.csproj", "{DACAB6A0-F495-4FA8-B13D-329EEE6AC7C5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudStorageWeb", "CloudStorageWeb\CloudStorageWeb\CloudStorageWeb.csproj", "{BAD988A9-15D9-4CBD-A0C4-EEF11A020FCD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudStorageWeb.Client", "CloudStorageWeb\CloudStorageWeb.Client\CloudStorageWeb.Client.csproj", "{6458B088-86CF-4275-81BA-C69A476EE3E0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +21,18 @@ Global
 		{6A4C27B0-15D9-4649-9C2A-09AB9E0A68A0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6A4C27B0-15D9-4649-9C2A-09AB9E0A68A0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6A4C27B0-15D9-4649-9C2A-09AB9E0A68A0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DACAB6A0-F495-4FA8-B13D-329EEE6AC7C5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DACAB6A0-F495-4FA8-B13D-329EEE6AC7C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DACAB6A0-F495-4FA8-B13D-329EEE6AC7C5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DACAB6A0-F495-4FA8-B13D-329EEE6AC7C5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BAD988A9-15D9-4CBD-A0C4-EEF11A020FCD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BAD988A9-15D9-4CBD-A0C4-EEF11A020FCD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BAD988A9-15D9-4CBD-A0C4-EEF11A020FCD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BAD988A9-15D9-4CBD-A0C4-EEF11A020FCD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6458B088-86CF-4275-81BA-C69A476EE3E0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6458B088-86CF-4275-81BA-C69A476EE3E0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6458B088-86CF-4275-81BA-C69A476EE3E0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6458B088-86CF-4275-81BA-C69A476EE3E0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
