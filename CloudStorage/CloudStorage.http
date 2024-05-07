@@ -1,0 +1,6 @@
+@CloudStorage_HostAddress = http://localhost:5127
+
+GET {{CloudStorage_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
