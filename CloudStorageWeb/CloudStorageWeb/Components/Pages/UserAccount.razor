@@ -240,46 +240,36 @@ else
     {
         try
         {
-            string NameFile = "";
+            string NameFile = e.File.Name;
             using (MemoryStream ms = new MemoryStream())
             {
-                NameFile = e.File.Name;
-                //Открыть один раз  дать значение
-                var mss = e.File.OpenReadStream();
+                await e.File.OpenReadStream().CopyToAsync(ms);
+                byte[] bytes = ms.ToArray();
+                Filles s = new Filles { Id = 0, Size = bytes.Length, Fille = bytes, NameFille = NameFile,TypeFiles="",StoragePath="" ,UserId = users.Id };
+                string jsonString = json(s, 1);
+                httpClient = ClientFactory.CreateClient();
+                httpClient.BaseAddress = new Uri(url);
+                HttpContent content = new StringContent(jsonString, Encoding.UTF8, "application/json");
+                var response = await httpClient.PostAsync(url, content);
 
-                // Копируем в поток
-                await mss.CopyToAsync(ms);
-                //Преобразуем в данные В МАССИВ BYTE[]
-                bytes = ms.ToArray();
-            }
-
-            Filles s = new Filles { Id = 0, Size = bytes.Length, Fille = bytes, NameFille = NameFile, UserId = users.Id };
-            string jsonString = json(s, 1);
-            httpClient = ClientFactory.CreateClient();
-            httpClient.BaseAddress = new Uri(url);
-            HttpContent content = new StringContent(jsonString, Encoding.UTF8, "text/plain");
-
-            var response = await httpClient.PostAsync(url, content);
-            // Проверяем, успешно ли выполнен запрос
-            if (response.IsSuccessStatusCode)
-            {
-                // Считываем содержимое ответа в строку
-                string responseContent = await response.Content.ReadAsStringAsync();
-
-                // Теперь вы можете работать с содержимым ответа
-                Console.WriteLine("Содержимое ответа: " + responseContent);
-            }
-            else
-            {
-                // Если запрос не удался, вы можете обработать соответствующий случай здесь
-                Console.WriteLine("Ошибка: " + response.StatusCode);
+                if (response.IsSuccessStatusCode)
+                {
+                    string responseContent = await response.Content.ReadAsStringAsync();
+                    Console.WriteLine("Содержимое ответа: " + responseContent);
+                }
+                else
+                {
+                    Console.WriteLine("Ошибка: " + response.StatusCode);
+                }
             }
             AddFilles = false;
             StateHasChanged();
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-
+            Console.WriteLine($"Ошибка: {ex.Message}");
         }
     }
+
+
 }
