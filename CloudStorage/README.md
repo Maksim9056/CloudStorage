@@ -4,6 +4,7 @@
 ## Состоит  из 3 проектов:
 * **CloudStorageWebAPI** - 
 * **CloudStorageWeb** - 
+* **CloudStorageClass** -
 * **CloudStorageWPF** - 
 
 ## Функциональности

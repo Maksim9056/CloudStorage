@@ -174,13 +174,13 @@ else
 
     HttpClient httpClient = null!;
     User users;
-    string UrlFillesApi = "https://localhost:7262/api/Filles/";
+    string UrlFillesApi = "https://www.экзаменатор.москва:85/api/Filles/";
 
     Filles Filles = new Filles{};
     List<Filles> files = new List<Filles>();
     bool AddFilles  = false;
     public byte[] bytes;
-    string url = "https://localhost:7262/api/Filles";
+    string url = "https://www.экзаменатор.москва:85/api/Filles";
 
     [Inject]
     public IJSRuntime JSRuntime { get; set; }
@@ -257,7 +257,7 @@ else
         {
             if (firstRender)
             {  
-                        string UrlGetRequest = "https://localhost:7262/api/Users/";
+                string UrlGetRequest = "https://www.экзаменатор.москва:85/api/Users/";
 
             await JSRuntime.InvokeVoidAsync("initDragAndDrop", DotNetObjectReference.Create(this));
             
