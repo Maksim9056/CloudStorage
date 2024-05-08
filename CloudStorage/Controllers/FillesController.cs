@@ -29,6 +29,42 @@ namespace CloudStorageWebAPI.Controllers
                 string fileExtension = Path.GetExtension(filles.NameFille).Trim('.');
                 filles.TypeFiles = fileExtension;
                 var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == filles.UserId);
+
+                List<string> list = new List<string>();
+                DateTime dateTime = DateTime.Now;
+
+                string DATE = "";
+                var date = dateTime.ToString();
+                var dates = date.Replace('.', '_');
+
+                var DA = dates.Replace(':', '_');
+                for (int i = 0; i < DA.Length; i++)
+                {
+                    if (DA[i].ToString() == "13")
+                    {
+                        DATE += "_";
+                    }
+                    else
+                    {
+                        list.Add(DA[i].ToString());
+
+                    }
+                }
+                DATE = "";
+                list.RemoveAt(10);
+                list.Insert(10, "_");
+                for (int i = 0; i < list.Count(); i++)
+                {
+                    if (list[i] == "")
+                    {
+
+                    }
+                    else
+                    {
+                        DATE += list[i].ToString();
+                    }
+                }
+
                 if (user == null)
                 {
                     return NotFound();
@@ -38,7 +74,7 @@ namespace CloudStorageWebAPI.Controllers
                     Directory.CreateDirectory(path + $"\\{user.Name}");
                     using (MemoryStream memoryStream = new MemoryStream(filles.Fille))
                     {
-                        using (FileStream fileStream = new FileStream(path + $"\\{user.Name}\\{filles.NameFille}", FileMode.OpenOrCreate))
+                        using (FileStream fileStream = new FileStream(path + $"\\{user.Name}\\{Guid.NewGuid().ToString()+"_DATE_"+ DATE+filles.NameFille}", FileMode.OpenOrCreate))
                         {
                             await memoryStream.CopyToAsync(fileStream);
                             filles.StoragePath = fileStream.Name;
@@ -53,7 +89,7 @@ namespace CloudStorageWebAPI.Controllers
                 {
                     using (MemoryStream memoryStream = new MemoryStream(filles.Fille))
                     {
-                        using (FileStream fileStream = new FileStream(path + $"\\{user.Name}\\{filles.NameFille}", FileMode.OpenOrCreate))
+                        using (FileStream fileStream = new FileStream(path + $"\\{user.Name}\\{Guid.NewGuid().ToString() + "_DATE_"+ DATE+ filles.NameFille}", FileMode.OpenOrCreate))
                         {
                             await memoryStream.CopyToAsync(fileStream);
                             filles.StoragePath = fileStream.Name;
