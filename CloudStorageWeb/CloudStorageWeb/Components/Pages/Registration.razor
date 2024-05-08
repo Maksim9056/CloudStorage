@@ -111,6 +111,7 @@
                 HttpContent content = new StringContent(str, Encoding.UTF8, "application/json");
                 httpClient = ClientFactory.CreateClient();
                 httpClient.BaseAddress = new Uri(urluser);
+
                 var response = await httpClient.PostAsync(urluser, content);
                 // Проверяем, успешно ли выполнен запрос
                 if (response.IsSuccessStatusCode)
