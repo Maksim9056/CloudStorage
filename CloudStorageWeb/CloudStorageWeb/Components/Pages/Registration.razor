@@ -7,7 +7,7 @@
 @using static System.Reflection.Metadata.BlobBuilder
 @inject IHttpClientFactory ClientFactory
 @inject NavigationManager NavigationManager
-
+@inject IConfiguration Configuration
 
 <style>
     div {
@@ -65,8 +65,13 @@
 <button class="btn btn-primary" @onclick="SubmitForm">Зарегистрироваться</button>
 
 @code {
-
-    string urluser = "https://www.экзаменатор.москва:85/api/Users";
+    //private IConfiguration Configuration;
+    string urluser = ""; // инициализируем переменную
+    protected override void OnInitialized()
+    {
+        urluser = Configuration.GetSection("UrlSettings")["UserApiUrl"] + "/api/Users";
+    }
+    //string urluser = Configuration.GetSection("UrlSettings")["UserApiUrl"] + "/api/Users";
     bool UserActive { get; set; } = false;
     public string Username { get; set; }
     public string Password { get; set; }

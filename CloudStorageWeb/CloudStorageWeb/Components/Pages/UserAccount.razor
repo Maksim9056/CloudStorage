@@ -5,6 +5,7 @@
 @using Microsoft.AspNetCore.Components.Forms
 @using Microsoft.JSInterop
 @using Microsoft.AspNetCore.Components.Web
+@inject IConfiguration Configuration
 
 @rendermode InteractiveServer
 @inject IHttpClientFactory ClientFactory
@@ -174,13 +175,13 @@ else
 
     HttpClient httpClient = null!;
     User users;
-    string UrlFillesApi = "https://www.экзаменатор.москва:85/api/Filles/";
+    string UrlFillesApi = "/api/Filles/";
 
     Filles Filles = new Filles{};
     List<Filles> files = new List<Filles>();
     bool AddFilles  = false;
     public byte[] bytes;
-    string url = "https://www.экзаменатор.москва:85/api/Filles";
+    string url = "/api/Filles";
 
     [Inject]
     public IJSRuntime JSRuntime { get; set; }
@@ -190,28 +191,28 @@ else
     {
         try
         {
-        var fileExtension = content.Replace("data:application/octet-stream;base64,", "");
+            var fileExtension = content.Replace("data:application/octet-stream;base64,", "");
 
-        var file = new Filles { NameFille = name, Size = size, TypeFiles = type, Fille =Convert.FromBase64String(fileExtension )};
-        Filles s = new Filles { Id = 0, Size = size, Fille = Convert.FromBase64String(fileExtension), NameFille = name, TypeFiles = "", StoragePath = "", UserId = users.Id };
-        string jsonString = json(s, 1);
-        httpClient = ClientFactory.CreateClient();
-        httpClient.BaseAddress = new Uri(url);
-        HttpContent contents = new StringContent(jsonString, Encoding.UTF8, "application/json");
-        var response = await httpClient.PostAsync(url, contents);
+            var file = new Filles { NameFille = name, Size = size, TypeFiles = type, Fille =Convert.FromBase64String(fileExtension )};
+            Filles s = new Filles { Id = 0, Size = size, Fille = Convert.FromBase64String(fileExtension), NameFille = name, TypeFiles = "", StoragePath = "", UserId = users.Id };
+            string jsonString = json(s, 1);
+            httpClient = ClientFactory.CreateClient();
+            httpClient.BaseAddress = new Uri(url);
+            HttpContent contents = new StringContent(jsonString, Encoding.UTF8, "application/json");
+            var response = await httpClient.PostAsync(url, contents);
 
-        if (response.IsSuccessStatusCode)
-        {
-            string responseContent = await response.Content.ReadAsStringAsync();
-            Console.WriteLine("Содержимое ответа: " + responseContent);
-        }
-        else
-        {
-            Console.WriteLine("Ошибка: " + response.StatusCode);
-        }
-        files.Add(file);
+            if (response.IsSuccessStatusCode)
+            {
+                string responseContent = await response.Content.ReadAsStringAsync();
+                Console.WriteLine("Содержимое ответа: " + responseContent);
+            }
+            else
+            {
+                Console.WriteLine("Ошибка: " + response.StatusCode);
+            }
+            files.Add(file);
 
-        StateHasChanged(); // Notify Blazor that the UI should be updated
+            StateHasChanged(); // Notify Blazor that the UI should be updated
         }
         catch (Exception)
         {
@@ -256,8 +257,11 @@ else
         try
         {
             if (firstRender)
-            {  
-                string UrlGetRequest = "https://www.экзаменатор.москва:85/api/Users/";
+            {
+                UrlFillesApi=Configuration.GetSection("UrlSettings")["UserApiUrl"] + UrlFillesApi;
+                // urluser = Configuration.GetSection("UrlSettings")["UserApiUrl"] + "/api/Users";
+                url= Configuration.GetSection("UrlSettings")["UserApiUrl"] + url;
+                string UrlGetRequest = Configuration.GetSection("UrlSettings")["UserApiUrl"] + "/api/Users/";
 
             await JSRuntime.InvokeVoidAsync("initDragAndDrop", DotNetObjectReference.Create(this));
             

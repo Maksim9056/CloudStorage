@@ -9,6 +9,12 @@ namespace CloudStorageWeb
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            // Configuration
+            var configuration = new ConfigurationBuilder()
+                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                .Build();
+
+
             // Add services to the container.
             builder.Services.AddRazorComponents()
                 .AddInteractiveServerComponents()
@@ -16,6 +22,7 @@ namespace CloudStorageWeb
             builder.Services.AddHttpClient();
 
             var app = builder.Build();
+
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())

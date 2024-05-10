@@ -6,6 +6,8 @@
 @inject NavigationManager NavigationManager
 @using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
 @inject ProtectedLocalStorage ProtectedLocalStore
+@inject IConfiguration Configuration
+
 <h1>Авторизация</h1>
 
 
@@ -46,7 +48,7 @@
     public string Password { get; set; } // Corrected property name
 
     HttpClient httpClient = null!;
-    string url = "https://www.экзаменатор.москва:85/api/Users/";
+    string url = "/api/Users/";
     User users;
 
     private async void SubmitForm()
@@ -55,6 +57,8 @@
         {
             if (!string.IsNullOrEmpty(Password) && !string.IsNullOrEmpty(Email))
             {
+                url = Configuration.GetSection("UrlSettings")["UserApiUrl"] + url;
+
                 httpClient = ClientFactory.CreateClient();
                 httpClient.BaseAddress = new Uri(url + Email + "," + Password);
                 await LoadData();
