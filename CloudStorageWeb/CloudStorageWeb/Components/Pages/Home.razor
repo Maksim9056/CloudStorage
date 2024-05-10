@@ -58,6 +58,8 @@
             if (!string.IsNullOrEmpty(Password) && !string.IsNullOrEmpty(Email))
             {
                 url = Configuration.GetSection("UrlSettings")["UserApiUrl"] + url;
+                // url = "http://127.0.0.1:8081" + url;
+
 
                 httpClient = ClientFactory.CreateClient();
                 httpClient.BaseAddress = new Uri(url + Email + "," + Password);
