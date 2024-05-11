@@ -75,7 +75,7 @@ namespace CloudStorageWebAPI.Controllers
                 {
                     
                     Directory.CreateDirectory(paths);
-                    paths = Path.Combine(paths, Guid.NewGuid().ToString() + "_DATE_" + DATE + filles.NameFille);
+                    paths = Path.Combine(paths, Guid.NewGuid().ToString() + "_"+ filles.NameFille);
                     using (MemoryStream memoryStream = new MemoryStream(filles.Fille))
                     {
                         //$"\\{user.Name}\\{Guid.NewGuid().ToString() + "_DATE_" + DATE + filles.NameFille}"
@@ -92,7 +92,7 @@ namespace CloudStorageWebAPI.Controllers
                 }
                 else
                 {
-                    paths =Path.Combine(paths, Guid.NewGuid().ToString() + "_DATE_" + DATE + filles.NameFille);
+                    paths =Path.Combine(paths, Guid.NewGuid().ToString()  + "_"+ filles.NameFille);
                     using (MemoryStream memoryStream = new MemoryStream(filles.Fille))
                     {
                         //$"\\{user.Name}\\{Guid.NewGuid().ToString() + "_DATE_" + DATE + filles.NameFille}
