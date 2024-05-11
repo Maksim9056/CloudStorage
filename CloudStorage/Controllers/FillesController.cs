@@ -69,12 +69,17 @@ namespace CloudStorageWebAPI.Controllers
                 {
                     return NotFound();
                 }
-                if (!Directory.Exists(path + $"\\{user.Name}"))
+                var paths = Path.Combine(path, user.Name);
+                //!Directory.Exists(path + $"\\{user.Name}"
+                if (!Directory.Exists(paths))
                 {
-                    Directory.CreateDirectory(path + $"\\{user.Name}");
+                    
+                    Directory.CreateDirectory(paths);
+                    paths = Path.Combine(paths, Guid.NewGuid().ToString() + "_DATE_" + DATE + filles.NameFille);
                     using (MemoryStream memoryStream = new MemoryStream(filles.Fille))
                     {
-                        using (FileStream fileStream = new FileStream(path + $"\\{user.Name}\\{Guid.NewGuid().ToString()+"_DATE_"+ DATE+filles.NameFille}", FileMode.OpenOrCreate))
+                        //$"\\{user.Name}\\{Guid.NewGuid().ToString() + "_DATE_" + DATE + filles.NameFille}"
+                        using (FileStream fileStream = new FileStream(paths, FileMode.OpenOrCreate))
                         {
                             await memoryStream.CopyToAsync(fileStream);
                             filles.StoragePath = fileStream.Name;
@@ -83,13 +88,15 @@ namespace CloudStorageWebAPI.Controllers
                     }
 
 
-                    Console.WriteLine($"Папка успешно создана! {path + $"\\{user.Name}"}");
+                    Console.WriteLine($"Папка успешно создана! {paths}");
                 }
                 else
                 {
+                    paths =Path.Combine(paths, Guid.NewGuid().ToString() + "_DATE_" + DATE + filles.NameFille);
                     using (MemoryStream memoryStream = new MemoryStream(filles.Fille))
                     {
-                        using (FileStream fileStream = new FileStream(path + $"\\{user.Name}\\{Guid.NewGuid().ToString() + "_DATE_"+ DATE+ filles.NameFille}", FileMode.OpenOrCreate))
+                        //$"\\{user.Name}\\{Guid.NewGuid().ToString() + "_DATE_" + DATE + filles.NameFille}
+                        using (FileStream fileStream = new FileStream(paths, FileMode.OpenOrCreate))
                         {
                             await memoryStream.CopyToAsync(fileStream);
                             filles.StoragePath = fileStream.Name;
@@ -97,7 +104,7 @@ namespace CloudStorageWebAPI.Controllers
                             filles.Size = fileStream.Length;
                         }
                     }
-                    Console.WriteLine($"Папка с указанным путем уже существует: {path + $"\\{user.Name}"}");
+                    Console.WriteLine($"Папка с указанным путем уже существует: {paths}");
                 }
 
                 _context.Filles.Add(filles);
@@ -108,7 +115,7 @@ namespace CloudStorageWebAPI.Controllers
             catch (Exception ex)
             {
                 Console.WriteLine($"Ошибка при сохранении файла: {ex.Message}");
-                return StatusCode(500, "Internal server error.");
+                return StatusCode(404, ex.Message+"Ошибка");
             }
         }
         [HttpGet("{id}")]
@@ -121,7 +128,7 @@ namespace CloudStorageWebAPI.Controllers
             }
             catch (Exception ex)
             {
-                return NotFound();
+                return NotFound(ex.Message);
             }
         }
 
