@@ -18,6 +18,7 @@ namespace CloudStorageWPF
     public partial class MainWindow : Window
     {
         public string Email { get; set; }
+        public string Password { get; set; }
         public MainWindow()
         {
             InitializeComponent();
@@ -27,8 +28,6 @@ namespace CloudStorageWPF
         {
             try
             {
-
-
                 TextBox textBox = (TextBox)sender;
                 Email = textBox.Text;
             }
@@ -40,12 +39,32 @@ namespace CloudStorageWPF
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
+            try
+            {
+                RegUser regUser = new RegUser();
+                regUser.Owner = this;
+                regUser.Show();
+                this.Hide();
 
+            }
+            catch(Exception)
+            {
+
+            }
         }
 
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
+            RegUser regUser = new RegUser();
+            regUser.Owner = this;
+            regUser.Show();
+            this.Hide();
+        }
 
+        private void TextBox_TextChanged_1(object sender, TextChangedEventArgs e)
+        {
+            TextBox textBox = (TextBox)sender;
+            Password = textBox.Text;
         }
     }
 }

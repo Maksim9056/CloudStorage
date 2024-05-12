@@ -23,7 +23,7 @@ namespace CloudStorageWebAPI.Controllers
         }
 
 
-        [HttpGet("{Email},{Password}")]
+        [HttpGet("{Email}  ,{Password}")]
         public async Task<ActionResult<User>> GetUserAuthorization(string Email, string Password)
         {
             try
