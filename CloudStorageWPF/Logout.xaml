@@ -5,8 +5,43 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CloudStorageWPF"
         mc:Ignorable="d"
-        Title="Logout" Height="450" Width="800">
+        Title="Кабинет" Height="450" Width="800">
     <Grid>
-        
+        <DataGrid x:Name="Data" 
+                 SelectedCellsChanged="Data_SelectedCellsChanged"
+                  AutoGenerateColumns="False" 
+                  CanUserResizeColumns="True" 
+                  CanUserResizeRows="False" 
+                  CanUserSortColumns="True" 
+                  SelectionMode="Single" 
+                  SelectionUnit="Cell" 
+                  IsReadOnly="True" 
+                  HorizontalAlignment="Left"  
+            VerticalAlignment="Top"
+            HorizontalScrollBarVisibility="Auto" 
+                  VerticalScrollBarVisibility="Auto" Margin="10,10,0,0" Width="440" RenderTransformOrigin="0.576,0.537" Grid.ColumnSpan="3">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header ="Id"  Binding="{Binding Id}" Width="Auto" />
+                <DataGridTextColumn Header="StoragePath" Binding="{Binding StoragePath}" Width="Auto"  />
+                <DataGridTextColumn Header="NameFille" Binding="{Binding NameFille}" Width="Auto"  />
+                <DataGridTextColumn Header="Size" Binding="{Binding Size}" Width="Auto"  />
+                <DataGridTextColumn Header="TypeFiles" Binding="{Binding TypeFiles}" Width="Auto"  />
+                <DataGridTextColumn Header="UserId" Binding="{Binding UserId}" Width="Auto"  />
+
+            </DataGrid.Columns>
+        </DataGrid>
+        <Button Content="Обновление"  Click="Button_Click_2"  HorizontalAlignment="Left" Margin="484,52,0,0" VerticalAlignment="Top"/>
+        <!--<Button Content="Создать" Click="acceptButton_Click" HorizontalAlignment="Left" Margin="484,10,0,0" VerticalAlignment="Top"/>-->
+
+        <Border Background="LightGray" 
+        MouseDown="UIElement_OnMouseDown" 
+        AllowDrop="True"
+        Drop="UIElement_OnDrop" 
+        DragOver="UIElement_OnDragOver" 
+        Margin="601,23,54,323">
+            <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center">Перетащите файл сюда</TextBlock>
+        </Border>
+
+
     </Grid>
 </Window>

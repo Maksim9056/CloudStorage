@@ -1,4 +1,8 @@
-﻿using System.Text;
+﻿using CloudStorageClass.CloudStorageModel;
+using Newtonsoft.Json;
+using System.Net.Http;
+using System.Security.Policy;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Ribbon.Primitives;
@@ -9,6 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using static System.Reflection.Metadata.BlobBuilder;
 
 namespace CloudStorageWPF
 {
@@ -18,11 +23,25 @@ namespace CloudStorageWPF
     public partial class MainWindow : Window
     {
         public string Email { get; set; }
+        
         public string Password { get; set; }
+        string url = "http://www.экзаменатор.москва:91";
+        string urls = "/api/Users/";
         public MainWindow()
         {
-            InitializeComponent();
+            try
+            {
+
+              InitializeComponent();
+
+            }catch (Exception)
+            {
+            
+            }
         }
+
+
+
 
         private void TextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
@@ -37,10 +56,11 @@ namespace CloudStorageWPF
             }
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private  void Button_Click(object sender, RoutedEventArgs e)
         {
             try
             {
+             
                 RegUser regUser = new RegUser();
                 regUser.Owner = this;
                 regUser.Show();
@@ -53,12 +73,45 @@ namespace CloudStorageWPF
             }
         }
 
-        private void Button_Click_1(object sender, RoutedEventArgs e)
+        private async void Button_Click_1(object sender, RoutedEventArgs e)
         {
-            RegUser regUser = new RegUser();
-            regUser.Owner = this;
-            regUser.Show();
-            this.Hide();
+            try
+            {
+                if (!string.IsNullOrEmpty(Password) && !string.IsNullOrEmpty(Email))
+                {
+                    User user = new User();
+                    using (HttpClient client = new HttpClient())
+                    {
+                        // API endpoint
+                        client.BaseAddress = new Uri(url + urls + Email + "," + Password);
+                        // Send a GET request to the API
+                        HttpResponseMessage response = await client.GetAsync(url+ urls + Email + "," + Password);
+
+                        // Check if the response is successful
+                        if (response.IsSuccessStatusCode)
+                        {
+                            // Read the response content as a string
+                            string jsonString = await response.Content.ReadAsStringAsync();
+
+                            // Deserialize the JSON string to a list of Book objects
+                            user = JsonConvert.DeserializeObject<User>(jsonString);
+                            Logout regUser = new Logout(user);
+                            regUser.Owner = this;
+                            regUser.Show();
+                            this.Hide();
+                            // Return the list of books
+                        }
+                        else
+                        {
+                            MessageBox.Show("Failed to retrieve data from the API. Status code: " + response.StatusCode);
+                        }
+                    }
+                }
+            }
+            catch (Exception)
+            {
+
+            }
         }
 
         private void TextBox_TextChanged_1(object sender, TextChangedEventArgs e)
