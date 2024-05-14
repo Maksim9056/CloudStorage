@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Shapes;
@@ -13,7 +14,7 @@ namespace CloudStorageWPF
         string path = AppDomain.CurrentDomain.BaseDirectory;
 
         string NameFiles = "seting.txt";
-
+        public string urlss { get; set; } = "";
         public async void CreateFileSeting()
         {
             try
@@ -42,7 +43,7 @@ namespace CloudStorageWPF
 
 
 
-        public async Task<string> ReadFillesSeting()
+        public  void ReadFillesSeting()
         {
             try
             {
@@ -53,14 +54,12 @@ namespace CloudStorageWPF
                 {
                     byte[] buffer = new byte[fileStream.Length];
 
-                    await fileStream.ReadAsync(buffer, 0, buffer.Length);
-                    url = Encoding.Default.GetString(buffer);
+                     fileStream.Read(buffer, 0, buffer.Length);
+                    urlss = Encoding.Default.GetString(buffer);
                 }
-                return url;
             }
             catch (Exception)
             {
-                return string.Empty;
             }
         }
     }

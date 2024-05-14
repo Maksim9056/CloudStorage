@@ -36,9 +36,9 @@ namespace CloudStorageWPF
                 WorkSeting workSeting = new WorkSeting();
 
                 workSeting.CreateFileSeting();
-               var s =    workSeting.ReadFillesSeting();
+                workSeting.ReadFillesSeting();
 
-                var result = s.Result;
+                var result = workSeting.urlss;
                 url = result;
 
             }
