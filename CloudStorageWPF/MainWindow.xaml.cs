@@ -1,6 +1,8 @@
 ﻿using CloudStorageClass.CloudStorageModel;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Security.Policy;
 using System.Text;
 using System.Windows;
@@ -108,6 +110,9 @@ namespace CloudStorageWPF
                             regUser.Show();
                             this.Hide();
                             // Return the list of books
+                            //client.BaseAddress = new Uri("https://your.api.endpoint.com/");
+                            //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
                         }
                         else
                         {

@@ -7,6 +7,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using CloudStorageClass.CloudStorageModel;
 using CloudStorageWebAPI.Data;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration;
 
 namespace CloudStorageWebAPI.Controllers
 {
@@ -16,10 +23,12 @@ namespace CloudStorageWebAPI.Controllers
     {
         private readonly DB _context;
         string path = AppDomain.CurrentDomain.BaseDirectory;
+        private readonly IConfiguration _configuration;
 
-        public UsersController(DB context)
+        public UsersController(DB context, IConfiguration configuration)
         {
             _context = context;
+            _configuration = configuration;
         }
 
 
@@ -34,6 +43,20 @@ namespace CloudStorageWebAPI.Controllers
                 {
                     return NotFound();
                 }
+                //var tokenHandler = new JwtSecurityTokenHandler();
+                //var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Key"]);
+                //var tokenDescriptor = new SecurityTokenDescriptor
+                //{
+                //    Subject = new ClaimsIdentity(new Claim[]
+                //    {
+                //        new Claim(ClaimTypes.Name, user.Email),
+                //    }),
+                //    Expires = DateTime.UtcNow.AddDays(7), 
+                //    SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+                //};
+                //var token = tokenHandler.CreateToken(tokenDescriptor);
+                //var tokenString = tokenHandler.WriteToken(token);
+
                 return user;
 
             }
@@ -51,6 +74,7 @@ namespace CloudStorageWebAPI.Controllers
         //}
 
         // GET: api/Users/5
+        //[Authorize]
         [HttpGet("{id}")]
         public async Task<ActionResult<User>> GetUser(int id)
         {
