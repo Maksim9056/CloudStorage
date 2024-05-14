@@ -28,7 +28,7 @@
         <TextBox Grid.Row="1" TextChanged="TextBox_TextChanged_2"  Margin="221,94,379,0" VerticalAlignment="Top" Width="200" Height="30" Grid.RowSpan="2" Grid.ColumnSpan="2"/>
         <TextBlock Text="Введите пароль:" Grid.Row="2" Margin="12,101,0,0" VerticalAlignment="Top" Foreground="#808080"/>
 
-        <Button Content="Регистрация" Grid.Row="2" Grid.Column="1" Margin="0,315,268,0" VerticalAlignment="Top" Width="100" Height="30" Background="#007acc" Foreground="White" HorizontalAlignment="Right"/>
-        <Button Content="Назад" Grid.Row="2" Grid.Column="0" Margin="280,315,20,0" VerticalAlignment="Top" Width="100" Height="30" Background="#dcdcdc" Foreground="Black" Click="Button_Click"/>
+        <Button Content="Регистрация" Grid.Row="2" Grid.Column="1" Margin="0,315,268,0" VerticalAlignment="Top" Width="100" Height="30" Background="#007acc" Foreground="White" HorizontalAlignment="Right" Click="Button_Click"/>
+        <Button Content="Назад" Grid.Row="2" Grid.Column="0" Margin="280,315,20,0" VerticalAlignment="Top" Width="100" Height="30" Background="#dcdcdc" Foreground="Black" Click="Button_Click_1" />
     </Grid>
 </Window>

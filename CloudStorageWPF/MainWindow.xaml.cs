@@ -25,16 +25,24 @@ namespace CloudStorageWPF
         public string Email { get; set; }
         
         public string Password { get; set; }
-        string url = "http://www.экзаменатор.москва:91";
+        string url = "https://localhost:7262";
         string urls = "/api/Users/";
         public MainWindow()
         {
             try
             {
 
-              InitializeComponent();
+                InitializeComponent();
+                WorkSeting workSeting = new WorkSeting();
 
-            }catch (Exception)
+                workSeting.CreateFileSeting();
+               var s =    workSeting.ReadFillesSeting();
+
+                var result = s.Result;
+                url = result;
+
+            }
+            catch (Exception)
             {
             
             }
@@ -61,7 +69,7 @@ namespace CloudStorageWPF
             try
             {
              
-                RegUser regUser = new RegUser();
+                RegUser regUser = new RegUser(url);
                 regUser.Owner = this;
                 regUser.Show();
                 this.Hide();
@@ -95,7 +103,7 @@ namespace CloudStorageWPF
 
                             // Deserialize the JSON string to a list of Book objects
                             user = JsonConvert.DeserializeObject<User>(jsonString);
-                            Logout regUser = new Logout(user);
+                            Logout regUser = new Logout(user,url);
                             regUser.Owner = this;
                             regUser.Show();
                             this.Hide();

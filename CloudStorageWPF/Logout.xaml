@@ -38,9 +38,11 @@
         AllowDrop="True"
         Drop="UIElement_OnDrop" 
         DragOver="UIElement_OnDragOver" 
-        Margin="601,23,54,323">
-            <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center">Перетащите файл сюда</TextBlock>
+        Margin="638,86,27,317" HorizontalAlignment="Left">
+            <TextBlock VerticalAlignment="Center" HorizontalAlignment="Left" Margin="6,0,0,0">Перетащите файл сюда</TextBlock>
         </Border>
+        <Label x:Name="NameUser" Margin="598,11,0,400" Height="23" Width="45" HorizontalAlignment="Left"/>
+        <Button Content="Выход" HorizontalAlignment="Left" Margin="666,8,0,0" VerticalAlignment="Top" Click="Button_Click"/>
 
 
     </Grid>

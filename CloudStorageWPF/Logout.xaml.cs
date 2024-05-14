@@ -26,14 +26,23 @@ namespace CloudStorageWPF
     public partial class Logout : Window
     {
         User User { get; set; }
-        string url = "http://www.экзаменатор.москва:91";
+        string url = "https://localhost:7262";
         string UrlFillesApi = "/api/Filles/";
+                        WorkSeting workSeting = new WorkSeting();
 
-        public Logout(User user)
+        public Logout(User user,  string url    )
         {
-            User = user;
-             InitializeComponent();
-            FetchDataFromApi(user);
+            try
+            {
+                User = user;
+                InitializeComponent();
+                NameUser.Content = user.Name;
+                this.url = url;
+                FetchDataFromApi(user);
+            }
+            catch (Exception ex)
+            {
+            }
         }
 
         /// <summary>
@@ -123,7 +132,9 @@ namespace CloudStorageWPF
         }
         private async void UIElement_OnDrop(object sender, DragEventArgs e)
         {
-            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            try
+            {
+                if (e.Data.GetDataPresent(DataFormats.FileDrop))
             {
                 // Получить путь к перетаскиваемому файлу
                 string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
@@ -142,7 +153,7 @@ namespace CloudStorageWPF
 
                                 fileStream.CopyTo(memoryStream);
                                 //await memoryStream.CopyToAsync(fileStream);
-                                s.NameFille = fileStream.Name;
+                                s.NameFille = System.IO.Path.GetFileName(fileStream.Name);
                                 s.Size = fileStream.Length;
                                 s.Fille = memoryStream.ToArray();
                             }
@@ -169,13 +180,17 @@ namespace CloudStorageWPF
                         //MessageBox.Show($"Путь к файлу: {file}");
                     }
                 }
+                }
+            }
+            catch (Exception)
+            {
             }
         }
 
 
         private void acceptButton_Click(object sender, RoutedEventArgs e)
         {
-
+           
         }
 
         private void UIElement_OnDragOver(object sender, DragEventArgs e)
@@ -186,6 +201,20 @@ namespace CloudStorageWPF
         private void UIElement_OnMouseDown(object sender, MouseButtonEventArgs e)
         {
 
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                MainWindow regUser = new MainWindow();
+                regUser.Owner = this;
+                regUser.Show();
+                this.Hide();
+            }
+            catch (Exception )
+            {
+            }
         }
     }
 }

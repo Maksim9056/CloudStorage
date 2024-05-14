@@ -27,14 +27,16 @@ namespace CloudStorageWPF
         public string Name { get; set; }
 
         public string Password { get; set; }
-        string url = "http://www.экзаменатор.москва:91" + "/api/Users";
+
+        string url = "https://localhost:7262";
 
     
-        public RegUser()
+        public RegUser( string urls)
         {
             try
             {
                 InitializeComponent();
+                url = urls+"/api/Users"; ;
             }
             catch (Exception)
             {
@@ -166,6 +168,22 @@ namespace CloudStorageWPF
                 TextBox textBox = (TextBox)sender;
 
                 Password = textBox.Text;
+
+            }
+            catch (Exception)
+            {
+
+            }
+        }
+
+        private void Button_Click_1(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                MainWindow regUser = new MainWindow();
+                regUser.Owner = this;
+                regUser.Show();
+                this.Hide();
 
             }
             catch (Exception)
