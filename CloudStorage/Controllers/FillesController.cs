@@ -87,7 +87,6 @@ namespace CloudStorageWebAPI.Controllers
                         }
                     }
 
-
                     Console.WriteLine($"Папка успешно создана! {paths}");
                 }
                 else
@@ -118,7 +117,8 @@ namespace CloudStorageWebAPI.Controllers
                 return StatusCode(404, ex.Message+"Ошибка");
             }
         }
-        [HttpGet("{id}")]
+
+        [HttpGet("user{id}")]
         public async Task<ActionResult<IEnumerable<Filles>>> GetGroupsChats(int id)
         {
             try
@@ -138,7 +138,6 @@ namespace CloudStorageWebAPI.Controllers
         {
             try
             {
-
 
                 var filles = await _context.Filles.FindAsync(id);
                 if (filles == null)
@@ -167,19 +166,19 @@ namespace CloudStorageWebAPI.Controllers
         //    return await _context.Filles.ToListAsync();
         //}
 
-        //// GET: api/Filles/5
-        //[HttpGet("{id}")]
-        //public async Task<ActionResult<Filles>> GetFilles(int id)
-        //{
-        //    var filles = await _context.Filles.FindAsync(id);
+        // GET: api/Filles/5
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Filles>> GetFilles(int id)
+        {
+            var filles = await _context.Filles.FindAsync(id);
 
-        //    if (filles == null)
-        //    {
-        //        return NotFound();
-        //    }
+            if (filles == null)
+            {
+                return NotFound();
+            }
 
-        //    return filles;
-        //}
+            return filles;
+        }
 
         //// PUT: api/Filles/5
         //// To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754

@@ -7,6 +7,10 @@
         mc:Ignorable="d"
         Title="Кабинет" Height="450" Width="800">
     <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="121*"/>
+            <ColumnDefinition Width="679*"/>
+        </Grid.ColumnDefinitions>
         <DataGrid x:Name="Data" 
                  SelectedCellsChanged="Data_SelectedCellsChanged"
                   AutoGenerateColumns="False" 
@@ -19,7 +23,7 @@
                   HorizontalAlignment="Left"  
             VerticalAlignment="Top"
             HorizontalScrollBarVisibility="Auto" 
-                  VerticalScrollBarVisibility="Auto" Margin="10,10,0,0" Width="440" RenderTransformOrigin="0.576,0.537" Grid.ColumnSpan="3">
+                  VerticalScrollBarVisibility="Auto" Margin="10,10,0,0" Width="440" RenderTransformOrigin="0.576,0.537" Grid.ColumnSpan="2">
             <DataGrid.Columns>
                 <DataGridTextColumn Header ="Id"  Binding="{Binding Id}" Width="Auto" />
                 <DataGridTextColumn Header="StoragePath" Binding="{Binding StoragePath}" Width="Auto"  />
@@ -30,7 +34,7 @@
 
             </DataGrid.Columns>
         </DataGrid>
-        <Button Content="Обновление"  Click="Button_Click_2"  HorizontalAlignment="Left" Margin="484,52,0,0" VerticalAlignment="Top"/>
+        <Button Content="Обновление"  Click="Button_Click_2"  HorizontalAlignment="Left" Margin="363,52,0,0" VerticalAlignment="Top" Grid.Column="1"/>
         <!--<Button Content="Создать" Click="acceptButton_Click" HorizontalAlignment="Left" Margin="484,10,0,0" VerticalAlignment="Top"/>-->
 
         <Border Background="LightGray" 
@@ -38,11 +42,11 @@
         AllowDrop="True"
         Drop="UIElement_OnDrop" 
         DragOver="UIElement_OnDragOver" 
-        Margin="638,86,27,317" HorizontalAlignment="Left">
+        Margin="517,86,0,317" HorizontalAlignment="Left" Grid.Column="1">
             <TextBlock VerticalAlignment="Center" HorizontalAlignment="Left" Margin="6,0,0,0">Перетащите файл сюда</TextBlock>
         </Border>
-        <Label x:Name="NameUser" Margin="598,11,0,400" Height="23" Width="45" HorizontalAlignment="Left"/>
-        <Button Content="Выход" HorizontalAlignment="Left" Margin="666,8,0,0" VerticalAlignment="Top" Click="Button_Click"/>
+        <Label x:Name="NameUser" Margin="477,11,0,400" Height="23" Width="45" HorizontalAlignment="Left" Grid.Column="1"/>
+        <Button Content="Выход" HorizontalAlignment="Left" Margin="545,8,0,0" VerticalAlignment="Top" Click="Button_Click" Grid.Column="1"/>
 
 
     </Grid>

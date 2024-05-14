@@ -258,7 +258,7 @@ else
         {
             if (firstRender)
             {
-                UrlFillesApi=Configuration.GetSection("UrlSettings")["UserApiUrl"] + UrlFillesApi;
+                UrlFillesApi = Configuration.GetSection("UrlSettings")["UserApiUrl"] + UrlFillesApi + "user";
                 // urluser = Configuration.GetSection("UrlSettings")["UserApiUrl"] + "/api/Users";
                 url= Configuration.GetSection("UrlSettings")["UserApiUrl"] + url;
                 string UrlGetRequest = Configuration.GetSection("UrlSettings")["UserApiUrl"] + "/api/Users/";
