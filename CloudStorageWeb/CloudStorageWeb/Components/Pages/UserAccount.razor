@@ -48,6 +48,8 @@
         <button class="btn btn-primary mr-2" @onclick="FilterFiles">Применить фильтр</button>
 
         <button class="btn btn-success" @onclick="RefreshPage">Обновить</button>
+        <button class="btn btn-danger" @onclick="Logout">Выход</button> <!-- Добавленная кнопка выхода -->
+
     </div>
 
   
@@ -262,25 +264,31 @@ else
                 url= Configuration.GetSection("UrlSettings")["UserApiUrl"] + url;
                 string UrlGetRequest = Configuration.GetSection("UrlSettings")["UserApiUrl"] + "/api/Users/";
 
-            await JSRuntime.InvokeVoidAsync("initDragAndDrop", DotNetObjectReference.Create(this));
-            
-            var result = await ProtectedLocalStore.GetAsync<int>("usersid");
-            var usersId = result.Success ? result.Value : 0;
-            var results = await ProtectedLocalStore.GetAsync<string>("password");
-            var password = results.Success ? results.Value : "";
-            var resultss = await ProtectedLocalStore.GetAsync<string>("mail");
-            var mail = resultss.Success ? resultss.Value : "";
-            httpClient = ClientFactory.CreateClient();
-            httpClient.BaseAddress = new Uri(UrlGetRequest + mail + "," + password);
+                await JSRuntime.InvokeVoidAsync("initDragAndDrop", DotNetObjectReference.Create(this));
 
-            users = await httpClient.GetFromJsonAsync<User>(httpClient.BaseAddress);
+                var result = await ProtectedLocalStore.GetAsync<int>("usersid");
+                var usersId = result.Success ? result.Value : 0;
+                var results = await ProtectedLocalStore.GetAsync<string>("password");
+                var password = results.Success ? results.Value : "";
+                var resultss = await ProtectedLocalStore.GetAsync<string>("mail");
+                var mail = resultss.Success ? resultss.Value : "";
+                if (usersId == 0 && !string.IsNullOrEmpty(password) && !string.IsNullOrEmpty(mail))
+                {
+                    NavigationManager.NavigateTo($"/Authorization");
+
+                }
+
+                httpClient = ClientFactory.CreateClient();
+                httpClient.BaseAddress = new Uri(UrlGetRequest + mail + "," + password);
+
+                users = await httpClient.GetFromJsonAsync<User>(httpClient.BaseAddress);
 
 
-            httpClient = ClientFactory.CreateClient();
-            httpClient.BaseAddress = new Uri(UrlFillesApi + usersId);
-            files = await httpClient.GetFromJsonAsync<List<Filles>>(httpClient.BaseAddress);
+                httpClient = ClientFactory.CreateClient();
+                httpClient.BaseAddress = new Uri(UrlFillesApi + usersId);
+                files = await httpClient.GetFromJsonAsync<List<Filles>>(httpClient.BaseAddress);
 
-            StateHasChanged();
+                StateHasChanged();
             }
         }
         catch (Exception)
@@ -404,5 +412,20 @@ else
         }
     }
 
-
+    private async  Task Logout()
+    {
+        try
+        {
+            await ProtectedLocalStore.DeleteAsync("usersid");
+            await ProtectedLocalStore.DeleteAsync("password");
+            await ProtectedLocalStore.DeleteAsync("mail");
+            NavigationManager.NavigateTo($"/Account");
+            StateHasChanged(); 
+        }
+        catch (Exception ex)
+        {
+            
+            Console.WriteLine($"Ошибка: {ex.Message}");
+        }
+    }
 }
