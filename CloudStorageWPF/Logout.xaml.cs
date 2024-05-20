@@ -58,9 +58,9 @@ namespace CloudStorageWPF
                 using (HttpClient client = new HttpClient())
                 {
                     // API endpoint
-                    client.BaseAddress = new Uri(url + UrlFillesApi + user.Id);
+                    client.BaseAddress = new Uri(url + UrlFillesApi+"user" + user.Id);
                     // Send a GET request to the API
-                    HttpResponseMessage response = await client.GetAsync(url+ UrlFillesApi+ user.Id);
+                    HttpResponseMessage response = await client.GetAsync(url+ UrlFillesApi+ "user" +user.Id);
 
                     // Check if the response is successful
                     if (response.IsSuccessStatusCode)
@@ -70,8 +70,6 @@ namespace CloudStorageWPF
 
                         // Deserialize the JSON string to a list of Book objects
                         filles = JsonConvert.DeserializeObject<List<Filles>>(jsonString);
-                       
-                        // Return the list of books
                     }
                     else
                     {
@@ -79,7 +77,6 @@ namespace CloudStorageWPF
                     }
                 }
                 Data.ItemsSource = filles;
-
             }
             catch (Exception ex)
             {
