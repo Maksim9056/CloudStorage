@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Json;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -156,12 +157,13 @@ namespace CloudStorageWPF
                             }
                         }
                         string urlS = "/api/Filles";
+                        HttpResponseMessage response = await client.PostAsJsonAsync(url + urlS, s);
 
 
-                        client.BaseAddress = new Uri(url+ urlS);
-                        string jsonString = json(s, 1);
-                        HttpContent content = new StringContent(jsonString, Encoding.UTF8, "application/json");
-                        var response = await client.PostAsync(url + urlS, content);
+                            //client.BaseAddress = new Uri(url+ urlS);
+                        //string jsonString = json(s, 1);
+                        //HttpContent content = new StringContent(jsonString, Encoding.UTF8, "application/json");
+                        //var response = await client.PostAsync(url + urlS, content);
 
                         if (response.IsSuccessStatusCode)
                         {
