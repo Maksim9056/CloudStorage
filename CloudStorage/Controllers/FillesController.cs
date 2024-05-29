@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using CloudStorageClass.CloudStorageModel;
 using CloudStorageWebAPI.Data;
+using static CloudStorage.Program;
 
 namespace CloudStorageWebAPI.Controllers
 {
@@ -20,11 +21,29 @@ namespace CloudStorageWebAPI.Controllers
         {
             _context = context;
         }
+
         [HttpPost]
-        public async Task<ActionResult<Filles>> PostFilles(Filles filles)
+        public async Task<ActionResult<Filles>> PostFilles(/*[FromForm] FillesInputModel inputModel*/ Filles filles)
         {
             try
             {
+                //var filles = new Filles
+                //{
+                //    Id = inputModel.Id,
+                //    StoragePath = inputModel.StoragePath,
+                //    NameFille = inputModel.Fille.FileName,
+                //    TypeFiles = inputModel.TypeFiles,
+                //    Size = inputModel.Fille.Length,
+                //    UserId = inputModel.UserId
+                //    // Не добавляем Fille, так как мы его уже сохраняем на сервере
+                ////};
+                //using (MemoryStream memoryStream = new MemoryStream())
+                //{
+                //    inputModel.Fille.CopyTo(memoryStream);
+                //    filles.Fille = memoryStream.ToArray();
+                //    // Копируем содержимое IFormFile в поток
+
+                //}
                 string path = AppDomain.CurrentDomain.BaseDirectory;
                 string fileExtension = Path.GetExtension(filles.NameFille).Trim('.');
                 filles.TypeFiles = fileExtension;
@@ -123,7 +142,33 @@ namespace CloudStorageWebAPI.Controllers
         {
             try
             {
-                return await _context.Filles.Where(u => u.UserId == id).ToListAsync();
+                List<Filles> s = await _context.Filles
+     .Where(u => u.UserId == id)
+     .Select(f => new Filles
+     {
+         Id = f.Id,
+         UserId = f.UserId,
+         StoragePath = f.StoragePath,
+         Size = f.Size,
+         
+         NameFille = f.NameFille,
+
+         // Включаем атрибут TypeFiles, если он необходим
+         TypeFiles = f.TypeFiles
+     })
+     .ToListAsync();
+
+
+                return s;
+                //return await _context.Filles.Where(u => u.UserId == id).Select(f => new
+                //{
+                //    f.Id,
+                //    f.UserId,
+                //    f.StoragePath,
+                //    f.TypeFiles,
+                //    f.Size,
+                //}
+                //).ToListAsync();
 
             }
             catch (Exception ex)

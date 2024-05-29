@@ -13,6 +13,7 @@
 @using System.Text
 @using Newtonsoft.Json
 @using System.Text.Json
+@using System.Timers
 @inject ProtectedLocalStorage ProtectedLocalStore
 <button class="btn btn-primary" @onclick="AddFormFilles">Добавить файл</button>
 <div class="ml-3 mt-3">
@@ -253,49 +254,94 @@ else
 
     //     }
     // }
+    private static System.Timers.Timer timer;
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         try
         {
-            if (firstRender)
+            UrlFillesApi = Configuration.GetSection("UrlSettings")["UserApiUrl"] + UrlFillesApi + "user";
+            // urluser = Configuration.GetSection("UrlSettings")["UserApiUrl"] + "/api/Users";
+            url = Configuration.GetSection("UrlSettings")["UserApiUrl"] + url;
+            string UrlGetRequest = Configuration.GetSection("UrlSettings")["UserApiUrl"] + "/api/Users/";
+
+            await JSRuntime.InvokeVoidAsync("initDragAndDrop", DotNetObjectReference.Create(this));
+
+            var result = await ProtectedLocalStore.GetAsync<int>("usersid");
+            var usersId = result.Success ? result.Value : 0;
+            var results = await ProtectedLocalStore.GetAsync<string>("password");
+            var password = results.Success ? results.Value : "";
+            var resultss = await ProtectedLocalStore.GetAsync<string>("mail");
+            var mail = resultss.Success ? resultss.Value : "";
+            if (usersId == 0 && !string.IsNullOrEmpty(password) && !string.IsNullOrEmpty(mail))
             {
-                UrlFillesApi = Configuration.GetSection("UrlSettings")["UserApiUrl"] + UrlFillesApi + "user";
-                // urluser = Configuration.GetSection("UrlSettings")["UserApiUrl"] + "/api/Users";
-                url= Configuration.GetSection("UrlSettings")["UserApiUrl"] + url;
-                string UrlGetRequest = Configuration.GetSection("UrlSettings")["UserApiUrl"] + "/api/Users/";
+                NavigationManager.NavigateTo($"/Authorization");
 
-                await JSRuntime.InvokeVoidAsync("initDragAndDrop", DotNetObjectReference.Create(this));
-
-                var result = await ProtectedLocalStore.GetAsync<int>("usersid");
-                var usersId = result.Success ? result.Value : 0;
-                var results = await ProtectedLocalStore.GetAsync<string>("password");
-                var password = results.Success ? results.Value : "";
-                var resultss = await ProtectedLocalStore.GetAsync<string>("mail");
-                var mail = resultss.Success ? resultss.Value : "";
-                if (usersId == 0 && !string.IsNullOrEmpty(password) && !string.IsNullOrEmpty(mail))
-                {
-                    NavigationManager.NavigateTo($"/Authorization");
-
-                }
-
-                httpClient = ClientFactory.CreateClient();
-                httpClient.BaseAddress = new Uri(UrlGetRequest + mail + "," + password);
-
-                users = await httpClient.GetFromJsonAsync<User>(httpClient.BaseAddress);
-
-
-                httpClient = ClientFactory.CreateClient();
-                httpClient.BaseAddress = new Uri(UrlFillesApi + usersId);
-                files = await httpClient.GetFromJsonAsync<List<Filles>>(httpClient.BaseAddress);
-
-                StateHasChanged();
             }
+
+            httpClient = ClientFactory.CreateClient();
+            httpClient.BaseAddress = new Uri(UrlGetRequest + mail + "," + password);
+
+            users = await httpClient.GetFromJsonAsync<User>(httpClient.BaseAddress);
+
+            httpClient = ClientFactory.CreateClient();
+            httpClient.BaseAddress = new Uri(UrlFillesApi + usersId);
+            files = await httpClient.GetFromJsonAsync<List<Filles>>(httpClient.BaseAddress);
+
+            StateHasChanged();
+            // timer = new System.Timers.Timer(1);
+            // timer.Elapsed += TimerCallback;
+            // timer.Start();
+            // if (firstRender)
+            // {
+                
+            // }
         }
         catch (Exception)
         {
 
         }
     }
+
+    //  async void TimerCallback(object sender, ElapsedEventArgs e)
+    // {
+    //     try
+    //     {
+    //         UrlFillesApi = Configuration.GetSection("UrlSettings")["UserApiUrl"] + UrlFillesApi + "user";
+    //         // urluser = Configuration.GetSection("UrlSettings")["UserApiUrl"] + "/api/Users";
+    //         url = Configuration.GetSection("UrlSettings")["UserApiUrl"] + url;
+    //         string UrlGetRequest = Configuration.GetSection("UrlSettings")["UserApiUrl"] + "/api/Users/";
+
+    //         await JSRuntime.InvokeVoidAsync("initDragAndDrop", DotNetObjectReference.Create(this));
+
+    //         var result = await ProtectedLocalStore.GetAsync<int>("usersid");
+    //         var usersId = result.Success ? result.Value : 0;
+    //         var results = await ProtectedLocalStore.GetAsync<string>("password");
+    //         var password = results.Success ? results.Value : "";
+    //         var resultss = await ProtectedLocalStore.GetAsync<string>("mail");
+    //         var mail = resultss.Success ? resultss.Value : "";
+    //         if (usersId == 0 && !string.IsNullOrEmpty(password) && !string.IsNullOrEmpty(mail))
+    //         {
+    //             NavigationManager.NavigateTo($"/Authorization");
+
+    //         }
+
+    //         httpClient = ClientFactory.CreateClient();
+    //         httpClient.BaseAddress = new Uri(UrlGetRequest + mail + "," + password);
+
+    //         users = await httpClient.GetFromJsonAsync<User>(httpClient.BaseAddress);
+
+    //         httpClient = ClientFactory.CreateClient();
+    //         httpClient.BaseAddress = new Uri(UrlFillesApi + usersId);
+    //         files = await httpClient.GetFromJsonAsync<List<Filles>>(httpClient.BaseAddress);
+
+    //         StateHasChanged();
+    //     }
+    //     catch (Exception)
+    //     {
+    //     }
+    // }
+
     private void RefreshPage()
     {
         try
@@ -381,22 +427,36 @@ else
     {
         try
         {
+            string UrlGetRequest = Configuration.GetSection("UrlSettings")["UserApiUrl"] + "/upload";
+
             string NameFile = e.File.Name;
             using (MemoryStream ms = new MemoryStream())
             {
-                await e.File.OpenReadStream().CopyToAsync(ms);
+                await e.File.OpenReadStream(9999999999999).CopyToAsync(ms);
                 byte[] bytes = ms.ToArray();
                 Filles s = new Filles { Id = 0, Size = bytes.Length, Fille = bytes, NameFille = NameFile,TypeFiles="",StoragePath="" ,UserId = users.Id };
-                string jsonString = json(s, 1);
-                httpClient = ClientFactory.CreateClient();
-                httpClient.BaseAddress = new Uri(url);
-                HttpContent content = new StringContent(jsonString, Encoding.UTF8, "application/json");
-                var response = await httpClient.PostAsync(url, content);
+                // string jsonString = json(s, 1);
+                // httpClient = ClientFactory.CreateClient();
+                // httpClient.BaseAddress = new Uri(url);
+                // HttpContent content = new StringContent(jsonString, Encoding.UTF8, "application/json");
+                // var response = await httpClient.PostAsync(url, content);
+                var formData = new MultipartFormDataContent();
 
+                // Добавляем данные класса Filles ByteArrayContent
+                formData.Add(new StringContent(s.Id.ToString()), "Id");
+                formData.Add(new StringContent(s.StoragePath), "StoragePath");
+                formData.Add(new StringContent(s.NameFille), "NameFille");
+                formData.Add(new ByteArrayContent(s.Fille), "Fille", s.NameFille); // Возможно, ошибка здесь
+                formData.Add(new StringContent(s.TypeFiles), "TypeFiles");
+                formData.Add(new StringContent(s.Size.ToString()), "Size");
+                formData.Add(new StringContent(s.UserId.ToString()), "UserId");
+
+                // Отправляем POST-запрос на указанный URL
+                var response = await httpClient.PostAsync(UrlGetRequest, formData);
                 if (response.IsSuccessStatusCode)
                 {
-                    string responseContent = await response.Content.ReadAsStringAsync();
-                    Console.WriteLine("Содержимое ответа: " + responseContent);
+                    // string responseContent = await response.Content.ReadAsStringAsync();
+                    // Console.WriteLine("Содержимое ответа: " + responseContent);
                 }
                 else
                 {

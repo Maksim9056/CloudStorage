@@ -6,7 +6,15 @@ namespace CloudStorageWebAPI.Data
     {
         public DB(DbContextOptions<DB> options) : base(options)
         {
-            Database.EnsureCreated();
+            try
+            {
+                Database.EnsureCreated();
+
+            }
+            catch (Exception ex)
+            {
+
+            }
         }
 
         public DbSet<User> Users { get; set; } = null!;

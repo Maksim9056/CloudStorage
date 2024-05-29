@@ -38,7 +38,15 @@ namespace CloudStorageWPF
                 InitializeComponent();
                 NameUser.Content = user.Name;
                 this.url = url;
-                FetchDataFromApi(user);
+                Thread thread = new Thread(async () => await FetchDataFromApi(user));
+
+                // Запускаем поток
+                thread.Start();
+
+                // Ожидаем завершения выполнения потока
+                thread.Join();
+             
+
             }
             catch (Exception ex)
             {
@@ -80,7 +88,7 @@ namespace CloudStorageWPF
             }
             catch (Exception ex)
             {
-                MessageBox.Show("An error occurred: " + ex.Message);
+                MessageBox.Show("An error occurred: " );
             }
 
             // Return an empty list if there is an error or no data retrieved
@@ -90,15 +98,15 @@ namespace CloudStorageWPF
 
         }
 
-        private void Button_Click_2(object sender, RoutedEventArgs e)
+        private async void Button_Click_2(object sender, RoutedEventArgs e)
         {
             try
             {
-                FetchDataFromApi(User);
+               await  FetchDataFromApi(User);
             }
             catch (Exception ex)
             {
-                MessageBox.Show("An error occurred: " + ex.Message);
+                MessageBox.Show("An error occurred: " );
             }
         }
         public string json(object obj, int i)
@@ -127,63 +135,148 @@ namespace CloudStorageWPF
                 return string.Empty;
             }
         }
+        //private async void UIElement_OnDrop(object sender, DragEventArgs e)
+        //{
+        //    try
+        //    {
+        //        if (e.Data.GetDataPresent(DataFormats.FileDrop))
+        //    {
+        //        // Получить путь к перетаскиваемому файлу
+        //        string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+
+        //            // Выполнить нужные операции с путем к файлу
+        //        foreach (string file in files)
+        //        {
+        //            using (HttpClient client = new HttpClient())
+        //            {
+        //                Filles s = new Filles { Id = 0,  TypeFiles = "", StoragePath = "", UserId = User.Id };
+
+        //                using (FileStream fileStream = new FileStream(file, FileMode.OpenOrCreate))
+        //                {
+        //                    using (MemoryStream memoryStream = new MemoryStream())
+        //                    {
+
+        //                        fileStream.CopyTo(memoryStream);
+        //                        //await memoryStream.CopyToAsync(fileStream);
+        //                        s.NameFille = System.IO.Path.GetFileName(fileStream.Name);
+        //                        s.Size = fileStream.Length;
+        //                        s.Fille = memoryStream.ToArray();
+        //                    }
+        //                }
+        //                string urlS = "/api/Filles";
+
+        //                    //StreamContent fileContent = new StreamContent(s);
+
+        //                    // Создаем экземпляр MultipartFormDataContent для отправки данных в формате multipart/form-data
+        //                    var formData = new MultipartFormDataContent();
+
+        //                    // Добавляем данные класса Filles ByteArrayContent
+        //                    formData.Add(new StringContent(s.Id.ToString()), "Id");
+        //                    formData.Add(new StringContent(s.StoragePath), "StoragePath");
+        //                    formData.Add(new StringContent(s.NameFille), "NameFille");
+        //                    //formData.Add(fileContent, "Fille", filles.NameFille);
+        //                    formData.Add(new ByteArrayContent(s.Fille), "Fille", s.NameFille); // Возможно, ошибка здесь
+
+        //                    //formData.Add(new StringContent(filles.Fille), "Fille", );
+        //                    formData.Add(new StringContent(s.TypeFiles), "TypeFiles");
+        //                    formData.Add(new StringContent(s.Size.ToString()), "Size");
+        //                    formData.Add(new StringContent(s.UserId.ToString()), "UserId");
+        //                    //
+        //                    // Отправляем POST-запрос на указанный URL
+        //                    //var response = await client.PostAsync("http://localhost:5127/upload", formData);
+        //                    var response = await client.PostAsync("http://localhost:5127/upload", formData);
+
+        //                    //client.BaseAddress = new Uri(url+ urlS);
+        //                    //string jsonString = json(s, 1);
+        //                    //HttpContent content = new StringContent(jsonString, Encoding.UTF8, "application/json");
+        //                    //var response = await client.PostAsync(url + urlS, content);
+
+        //                if (response.IsSuccessStatusCode)
+        //                {
+        //                    string responseContent = await response.Content.ReadAsStringAsync();
+        //                    MessageBox.Show("Файл успешно отправился");
+        //                }
+        //                else
+        //                {
+        //                    MessageBox.Show("Ошибка: " + response.StatusCode);
+        //                }
+
+        //                // Здесь вы можете использовать путь к файлу
+        //                //MessageBox.Show($"Путь к файлу: {file}");
+        //            }
+        //        }
+        //        }
+        //    }
+        //    catch (Exception)
+        //    {
+        //    }
+        //}
+
         private async void UIElement_OnDrop(object sender, DragEventArgs e)
         {
             try
             {
                 if (e.Data.GetDataPresent(DataFormats.FileDrop))
-            {
-                // Получить путь к перетаскиваемому файлу
-                string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
-               
-                    // Выполнить нужные операции с путем к файлу
-                foreach (string file in files)
                 {
+                    // Получить путь к перетаскиваемому файлу
+                    string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+
+                    // Используйте один экземпляр HttpClient для всех запросов
                     using (HttpClient client = new HttpClient())
                     {
-                        Filles s = new Filles { Id = 0,  TypeFiles = "", StoragePath = "", UserId = User.Id };
-                        
-                        using (FileStream fileStream = new FileStream(file, FileMode.OpenOrCreate))
+                        foreach (string file in files)
                         {
-                            using (MemoryStream memoryStream = new MemoryStream())
+                            using (FileStream fileStream = new FileStream(file, FileMode.OpenOrCreate))
                             {
+                                using (MemoryStream memoryStream = new MemoryStream())
+                                {
+                                    fileStream.CopyTo(memoryStream);
+                                    Filles s = new Filles
+                                    {
+                                        Id = 0,
+                                        TypeFiles = "",
+                                        StoragePath = "",
+                                        UserId = User.Id,
+                                        NameFille = System.IO.Path.GetFileName(fileStream.Name),
+                                        Size = fileStream.Length,
+                                        Fille = memoryStream.ToArray()
+                                    };
 
-                                fileStream.CopyTo(memoryStream);
-                                //await memoryStream.CopyToAsync(fileStream);
-                                s.NameFille = System.IO.Path.GetFileName(fileStream.Name);
-                                s.Size = fileStream.Length;
-                                s.Fille = memoryStream.ToArray();
+                                    // Создаем экземпляр MultipartFormDataContent для отправки данных в формате multipart/form-data
+                                    var formData = new MultipartFormDataContent();
+
+                                    // Добавляем данные класса Filles ByteArrayContent
+                                    formData.Add(new StringContent(s.Id.ToString()), "Id");
+                                    formData.Add(new StringContent(s.StoragePath), "StoragePath");
+                                    formData.Add(new StringContent(s.NameFille), "NameFille");
+                                    formData.Add(new ByteArrayContent(s.Fille), "Fille", s.NameFille); // Возможно, ошибка здесь
+                                    formData.Add(new StringContent(s.TypeFiles), "TypeFiles");
+                                    formData.Add(new StringContent(s.Size.ToString()), "Size");
+                                    formData.Add(new StringContent(s.UserId.ToString()), "UserId");
+
+                                    // Отправляем POST-запрос на указанный URL
+                                    var response = await client.PostAsync("http://localhost:5127/upload", formData);
+
+                                    if (response.IsSuccessStatusCode)
+                                    {
+                                        string responseContent = await response.Content.ReadAsStringAsync();
+                                        MessageBox.Show("Файл успешно отправился");
+                                    }
+                                    else
+                                    {
+                                        MessageBox.Show("Ошибка: " + response.StatusCode);
+                                    }
+                                }
                             }
                         }
-                        string urlS = "/api/Filles";
-
-
-                        client.BaseAddress = new Uri(url+ urlS);
-                        string jsonString = json(s, 1);
-                        HttpContent content = new StringContent(jsonString, Encoding.UTF8, "application/json");
-                        var response = await client.PostAsync(url + urlS, content);
-
-                        if (response.IsSuccessStatusCode)
-                        {
-                            string responseContent = await response.Content.ReadAsStringAsync();
-                            MessageBox.Show("Содержимое ответа: " + responseContent);
-                        }
-                        else
-                        {
-                            MessageBox.Show("Ошибка: " + response.StatusCode);
-                        }
-
-                        // Здесь вы можете использовать путь к файлу
-                        //MessageBox.Show($"Путь к файлу: {file}");
                     }
                 }
-                }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                MessageBox.Show("Произошла ошибка: " + ex.Message);
             }
         }
-
 
         private void acceptButton_Click(object sender, RoutedEventArgs e)
         {
