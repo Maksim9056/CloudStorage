@@ -256,7 +256,7 @@ namespace CloudStorageWPF
                                     formData.Add(new StringContent(s.UserId.ToString()), "UserId");
 
                                     // Отправляем POST-запрос на указанный URL
-                                    var response = await client.PostAsync("http://localhost:5127/upload", formData);
+                                    var response = await client.PostAsync(url + "/upload", formData);
 
                                     if (response.IsSuccessStatusCode)
                                     {
