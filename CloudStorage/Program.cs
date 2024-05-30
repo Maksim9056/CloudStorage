@@ -85,7 +85,7 @@ namespace CloudStorage
                             // Получаем сервис провайдера из контекста запроса
                             var serviceProvider = context.RequestServices;
                             // Получаем экземпляр контекста базы данных из провайдера сервисов
-                            var _context = serviceProvider.GetRequiredService<DB>();
+                            var _context =  serviceProvider.GetRequiredService<DB>();
                             context.Request.EnableBuffering(10000000000);
 
                             // Обработка POST-запросов по адресу /upload здесь
@@ -122,7 +122,7 @@ namespace CloudStorage
                                 await fillesInputModel.Fille.CopyToAsync(fileStream);
                             }
 
-                            _context.Filles.Add(filles);
+                            await  _context.Filles.AddAsync(filles);
                             await _context.SaveChangesAsync();
 
                             context.Response.StatusCode = 200;
