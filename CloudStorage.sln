@@ -11,7 +11,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CloudStorageWeb", "CloudSto
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CloudStorageWeb.Client", "CloudStorageWeb\CloudStorageWeb.Client\CloudStorageWeb.Client.csproj", "{6458B088-86CF-4275-81BA-C69A476EE3E0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudStorageWPF", "CloudStorageWPF\CloudStorageWPF.csproj", "{2101D9CB-5C25-4971-83AB-20B8F5880ADC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CloudStorageWPF", "CloudStorageWPF\CloudStorageWPF.csproj", "{2101D9CB-5C25-4971-83AB-20B8F5880ADC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestCloudStorage", "TestCloudStorage\TestCloudStorage.csproj", "{63F432B5-DA60-4AD0-8AB8-0BC98F7A30FE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,10 @@ Global
 		{2101D9CB-5C25-4971-83AB-20B8F5880ADC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2101D9CB-5C25-4971-83AB-20B8F5880ADC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2101D9CB-5C25-4971-83AB-20B8F5880ADC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{63F432B5-DA60-4AD0-8AB8-0BC98F7A30FE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{63F432B5-DA60-4AD0-8AB8-0BC98F7A30FE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{63F432B5-DA60-4AD0-8AB8-0BC98F7A30FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{63F432B5-DA60-4AD0-8AB8-0BC98F7A30FE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
