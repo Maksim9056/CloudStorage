@@ -37,21 +37,7 @@ namespace CloudStorage
             builder.Services.AddSwaggerGen();
             builder.Services.AddDbContext<DB>(options =>
             options.UseNpgsql(aCS ?? throw new InvalidOperationException("Connection string 'CloudStorageAPI' not found.")));
-            ////options.UseNpgsql("Host=localhost;Port=5432;Database=CloudStorage;Username=postgres;Password=2" ?? throw new InvalidOperationException("Connection string 'CloudStorageAPI' not found.")));
-            //builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
-            //{
-            //    options.TokenValidationParameters = new TokenValidationParameters
-            //    {
-            //        ValidateIssuer = true,
-            //        ValidateAudience = true,
-            //        ValidateLifetime = true,
-            //        ValidateIssuerSigningKey = true,
-            //        ValidIssuer = builder.Configuration["Jwt:Issuer"],
-            //        ValidAudience = builder.Configuration["Jwt:Audience"],
-            //        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
-            //    };
-            //});
-
+        
             builder.Services.AddDirectoryBrowser();
             builder.Services.Configure<FormOptions>(options =>
             {
@@ -93,11 +79,9 @@ namespace CloudStorage
                 endpoints.MapPost("/upload", async context =>
                 {
                     try
-                {
-                        using (MemoryStream mc = new MemoryStream())
+                    {
+                        using (MemoryStream memoryStream = new MemoryStream())
                         {
-
-
                             // Получаем сервис провайдера из контекста запроса
                             var serviceProvider = context.RequestServices;
                             // Получаем экземпляр контекста базы данных из провайдера сервисов
@@ -106,7 +90,6 @@ namespace CloudStorage
 
                             // Обработка POST-запросов по адресу /upload здесь
                             var inputModel = await context.Request.ReadFormAsync();
-
 
                             var fillesInputModel = new FillesInputModel
                             {
@@ -119,8 +102,11 @@ namespace CloudStorage
 
                             if (fillesInputModel == null || fillesInputModel.Fille == null || fillesInputModel.Fille.Length == 0)
                             {
-                                context.Response.StatusCode = 500; // Примерный код статуса ошибки (можно изменить на более подходящий)
+                                context.Response.StatusCode = 500;
+                                await context.Response.WriteAsync("Ошибка: неверные данные для загрузки файла.");
+                                return;
                             }
+
                             var filles = new Filles
                             {
                                 Id = fillesInputModel.Id,
@@ -129,112 +115,28 @@ namespace CloudStorage
                                 TypeFiles = fillesInputModel.TypeFiles,
                                 Size = fillesInputModel.Fille.Length,
                                 UserId = fillesInputModel.UserId
-                                // Не добавляем Fille, так как мы его уже сохраняем на сервере
                             };
-                            using (MemoryStream memoryStream = new MemoryStream())
+
+                            using (var fileStream = new FileStream(paths, FileMode.Create))
                             {
-                                fillesInputModel.Fille.CopyTo(memoryStream);
-                                filles.Fille = memoryStream.ToArray();
-                                // Копируем содержимое IFormFile в поток
-
-                            }
-                            string path = AppDomain.CurrentDomain.BaseDirectory;
-                            string fileExtension = Path.GetExtension(filles.NameFille).Trim('.');
-                            filles.TypeFiles = fileExtension;
-                            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == filles.UserId);
-
-                            List<string> list = new List<string>();
-                            DateTime dateTime = DateTime.Now;
-
-                            string DATE = "";
-                            var date = dateTime.ToString();
-                            var dates = date.Replace('.', '_');
-
-                            var DA = dates.Replace(':', '_');
-                            for (int i = 0; i < DA.Length; i++)
-                            {
-                                if (DA[i].ToString() == "13")
-                                {
-                                    DATE += "_";
-                                }
-                                else
-                                {
-                                    list.Add(DA[i].ToString());
-
-                                }
-                            }
-                            DATE = "";
-                            list.RemoveAt(10);
-                            list.Insert(10, "_");
-                            for (int i = 0; i < list.Count(); i++)
-                            {
-                                if (list[i] == "")
-                                {
-
-                                }
-                                else
-                                {
-                                    DATE += list[i].ToString();
-                                }
-                            }
-
-                            if (user == null)
-                            {
-                                await context.Response.WriteAsync($"Произошла ошибка: user  не найден");
-
-                            }
-                            var paths = Path.Combine(path, user.Name);
-                            //!Directory.Exists(path + $"\\{user.Name}"
-                            if (!Directory.Exists(paths))
-                            {
-
-                                Directory.CreateDirectory(paths);
-                                paths = Path.Combine(paths, Guid.NewGuid().ToString() + "_" + filles.NameFille);
-                                using (MemoryStream memoryStream = new MemoryStream(filles.Fille))
-                                {
-                                    //$"\\{user.Name}\\{Guid.NewGuid().ToString() + "_DATE_" + DATE + filles.NameFille}"
-                                    using (FileStream fileStream = new FileStream(paths, FileMode.OpenOrCreate))
-                                    {
-                                        await memoryStream.CopyToAsync(fileStream);
-                                        filles.StoragePath = fileStream.Name;
-                                        filles.Size = fileStream.Length;
-                                    }
-                                }
-
-                                Console.WriteLine($"Папка успешно создана! {paths}");
-                            }
-                            else
-                            {
-                                paths = Path.Combine(paths, Guid.NewGuid().ToString() + "_" + filles.NameFille);
-                                using (MemoryStream memoryStream = new MemoryStream(filles.Fille))
-                                {
-                                    //$"\\{user.Name}\\{Guid.NewGuid().ToString() + "_DATE_" + DATE + filles.NameFille}
-                                    using (FileStream fileStream = new FileStream(paths, FileMode.OpenOrCreate))
-                                    {
-                                        await memoryStream.CopyToAsync(fileStream);
-                                        filles.StoragePath = fileStream.Name;
-
-                                        filles.Size = fileStream.Length;
-                                    }
-                                }
-                                Console.WriteLine($"Папка с указанным путем уже существует: {paths}");
+                                await fillesInputModel.Fille.CopyToAsync(fileStream);
                             }
 
                             _context.Filles.Add(filles);
                             await _context.SaveChangesAsync();
-                            //// Создаем объект класса Filles
 
-
-                            // Отправляем созданный объект Filles в ответ
                             context.Response.StatusCode = 200;
                             await context.Response.WriteAsJsonAsync(filles);
                         }
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine(ex.Message);
+                        Console.WriteLine($"Ошибка при загрузке файла: {ex.Message}");
+                        context.Response.StatusCode = 500;
+                        await context.Response.WriteAsync($"Ошибка при загрузке файла: {ex.Message}");
                     }
                 });
+
             });
             app.MapControllers();
             app.UseHttpsRedirection();
@@ -251,6 +153,22 @@ namespace CloudStorage
             public IFormFile Fille { get; set; }
             public int UserId { get; set; }
         }
+
+
+        ////options.UseNpgsql("Host=localhost;Port=5432;Database=CloudStorage;Username=postgres;Password=2" ?? throw new InvalidOperationException("Connection string 'CloudStorageAPI' not found.")));
+        //builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
+        //{
+        //    options.TokenValidationParameters = new TokenValidationParameters
+        //    {
+        //        ValidateIssuer = true,
+        //        ValidateAudience = true,
+        //        ValidateLifetime = true,
+        //        ValidateIssuerSigningKey = true,
+        //        ValidIssuer = builder.Configuration["Jwt:Issuer"],
+        //        ValidAudience = builder.Configuration["Jwt:Audience"],
+        //        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+        //    };
+        //});
 
         //public class Filles
         //{

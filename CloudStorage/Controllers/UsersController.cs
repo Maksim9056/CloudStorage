@@ -43,19 +43,7 @@ namespace CloudStorageWebAPI.Controllers
                 {
                     return NotFound();
                 }
-                //var tokenHandler = new JwtSecurityTokenHandler();
-                //var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Key"]);
-                //var tokenDescriptor = new SecurityTokenDescriptor
-                //{
-                //    Subject = new ClaimsIdentity(new Claim[]
-                //    {
-                //        new Claim(ClaimTypes.Name, user.Email),
-                //    }),
-                //    Expires = DateTime.UtcNow.AddDays(7), 
-                //    SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-                //};
-                //var token = tokenHandler.CreateToken(tokenDescriptor);
-                //var tokenString = tokenHandler.WriteToken(token);
+              
 
                 return user;
 
@@ -66,12 +54,6 @@ namespace CloudStorageWebAPI.Controllers
             }
         }
 
-        //// GET: api/Users
-        //[HttpGet]
-        //public async Task<ActionResult<IEnumerable<User>>> GetUsers()
-        //{
-        //    return await _context.Users.ToListAsync();
-        //}
 
         // GET: api/Users/5
         //[Authorize]
@@ -94,36 +76,6 @@ namespace CloudStorageWebAPI.Controllers
             }
         }
 
-        //// PUT: api/Users/5
-        //// To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        //[HttpPut("{id}")]
-        //public async Task<IActionResult> PutUser(int id, User user)
-        //{
-        //    if (id != user.Id)
-        //    {
-        //        return BadRequest();
-        //    }
-
-        //    _context.Entry(user).State = EntityState.Modified;
-
-        //    try
-        //    {
-        //        await _context.SaveChangesAsync();
-        //    }
-        //    catch (DbUpdateConcurrencyException)
-        //    {
-        //        if (!UserExists(id))
-        //        {
-        //            return NotFound();
-        //        }
-        //        else
-        //        {
-        //            throw;
-        //        }
-        //    }
-
-        //    return NoContent();
-        //}
 
         // POST: api/Users
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
@@ -187,3 +139,55 @@ namespace CloudStorageWebAPI.Controllers
         }
     }
 }
+
+
+
+//// GET: api/Users
+//[HttpGet]
+//public async Task<ActionResult<IEnumerable<User>>> GetUsers()
+//{
+//    return await _context.Users.ToListAsync();
+//}
+//var tokenHandler = new JwtSecurityTokenHandler();
+//var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Key"]);
+//var tokenDescriptor = new SecurityTokenDescriptor
+//{
+//    Subject = new ClaimsIdentity(new Claim[]
+//    {
+//        new Claim(ClaimTypes.Name, user.Email),
+//    }),
+//    Expires = DateTime.UtcNow.AddDays(7), 
+//    SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+//};
+//var token = tokenHandler.CreateToken(tokenDescriptor);
+//var tokenString = tokenHandler.WriteToken(token);
+//// PUT: api/Users/5
+//// To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+//[HttpPut("{id}")]
+//public async Task<IActionResult> PutUser(int id, User user)
+//{
+//    if (id != user.Id)
+//    {
+//        return BadRequest();
+//    }
+
+//    _context.Entry(user).State = EntityState.Modified;
+
+//    try
+//    {
+//        await _context.SaveChangesAsync();
+//    }
+//    catch (DbUpdateConcurrencyException)
+//    {
+//        if (!UserExists(id))
+//        {
+//            return NotFound();
+//        }
+//        else
+//        {
+//            throw;
+//        }
+//    }
+
+//    return NoContent();
+//}
