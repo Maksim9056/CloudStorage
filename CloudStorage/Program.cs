@@ -12,11 +12,14 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IO;
 using System.Text;
+using Prometheus;
 
 namespace CloudStorage
 {
     public class Program
     {
+        static readonly Prometheus.Counter s_hatsSold1 = Metrics.CreateCounter("hats_sold1",
+            "The number of hats sold in our store");
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
@@ -59,7 +62,8 @@ namespace CloudStorage
             {
                 options.MaxRequestBodySize = 99999999999999; // Максимальный размер заголовков запроса в байтах (например, 1 GB)
             });
-          
+
+            builder.Services.AddHttpClient();
 
             var app = builder.Build();
           
@@ -69,6 +73,15 @@ namespace CloudStorage
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
+            else
+            {
+                app.UseSwagger();
+                app.UseSwaggerUI();
+                app.UseExceptionHandler("/Error");
+                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+                app.UseHsts();
+            }
+
             app.UseRouting();
 
             app.UseHttpsRedirection();
@@ -186,11 +199,36 @@ namespace CloudStorage
                 });
 
             });
+
+
+
+            // Setup Prometheus metrics endpoint
+            app.Use(async (context, next) =>
+            {
+                if (context.Request.Path.StartsWithSegments("/metrics"))
+                {
+                    await Metrics.DefaultRegistry.CollectAndExportAsTextAsync(context.Response.Body);
+                }
+                else
+                {
+                    await next();
+                }
+            });
+
+            var rand = new Random();
+            var timer = new Timer(_ =>
+            {
+                s_hatsSold1.Inc(rand.Next(0, 1000)); // Increment the hats sold counter
+            }, null, TimeSpan.Zero, TimeSpan.FromSeconds(10)); // Example: add hats sold every 10 seconds
+
             app.MapControllers();
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseDirectoryBrowser();
             app.UseAuthorization();
+
+            timer.Change(TimeSpan.Zero, TimeSpan.FromSeconds(10)); // Start the timer
+
             app.Run();
         }
         public class FillesInputModel
