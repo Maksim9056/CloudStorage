@@ -95,7 +95,7 @@ namespace CloudStorageWPF
                         // API endpoint
                         client.BaseAddress = new Uri(url + urls + Email + "," + Password);
                         // Send a GET request to the API
-                        HttpResponseMessage response = await client.GetAsync(url+ urls + Email + "," + Password);
+                        HttpResponseMessage response = await client.GetAsync(url+urls+Email +","+Password);
 
                         // Check if the response is successful
                         if (response.IsSuccessStatusCode)

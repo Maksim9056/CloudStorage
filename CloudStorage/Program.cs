@@ -2,6 +2,7 @@
 using CloudStorageClass.CloudStorageModel;
 using CloudStorageWebAPI.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Server.HttpSys;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
@@ -41,27 +42,27 @@ namespace CloudStorage
             builder.Services.AddDirectoryBrowser();
             builder.Services.Configure<FormOptions>(options =>
             {
-                options.MultipartHeadersCountLimit = 1000000000;
-                options.BufferBodyLengthLimit = 10000000000;
-                options.MultipartBodyLengthLimit = 10000000000; // Здесь устанавливается желаемый максимальный размер в байтах (например, 10 GB)
+                options.MultipartHeadersCountLimit = 999999999;
+                options.BufferBodyLengthLimit = 99999999999999;
+                options.MultipartBodyLengthLimit = 99999999999999; // Здесь устанавливается желаемый максимальный размер в байтах (например, 10 GB)
                 options.ValueLengthLimit = 999999999;
             });
             builder.Services.Configure<KestrelServerOptions>(options =>
             {
-                options.Limits.MaxRequestBodySize = 2000000000; // Максимальный размер тела запроса в байтах (например, 1 GB)
+                options.Limits.MaxRequestBodySize = 99999999999999; // Максимальный размер тела запроса в байтах (например, 1 GB)
             });
             builder.Services.Configure<IISServerOptions>(options =>
             {
-                options.MaxRequestBodyBufferSize = 2000000000; // Максимальный размер заголовков запроса в байтах (например, 1 GB)
+                options.MaxRequestBodyBufferSize = 999999999; // Максимальный размер заголовков запроса в байтах (например, 1 GB)
             });
             builder.Services.Configure<HttpSysOptions>(options =>
             {
-                options.MaxRequestBodySize = 2000000000; // Максимальный размер заголовков запроса в байтах (например, 1 GB)
+                options.MaxRequestBodySize = 99999999999999; // Максимальный размер заголовков запроса в байтах (например, 1 GB)
             });
+          
 
-      
             var app = builder.Build();
-
+          
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
@@ -86,7 +87,7 @@ namespace CloudStorage
                             var serviceProvider = context.RequestServices;
                             // Получаем экземпляр контекста базы данных из провайдера сервисов
                             var _context =  serviceProvider.GetRequiredService<DB>();
-                            context.Request.EnableBuffering(10000000000);
+                            //context.Request.EnableBuffering(10000000000);
 
                             // Обработка POST-запросов по адресу /upload здесь
                             var inputModel = await context.Request.ReadFormAsync();
@@ -99,14 +100,14 @@ namespace CloudStorage
                                 UserId = int.Parse(inputModel["UserId"]),
                                 Fille = inputModel.Files.GetFile("Fille")
                             };
-
+                            fillesInputModel.Fille.OpenReadStream().CopyTo(memoryStream);
                             if (fillesInputModel == null || fillesInputModel.Fille == null || fillesInputModel.Fille.Length == 0)
                             {
                                 context.Response.StatusCode = 500;
                                 await context.Response.WriteAsync("Ошибка: неверные данные для загрузки файла.");
                                 return;
                             }
-
+                           
                             var filles = new Filles
                             {
                                 Id = fillesInputModel.Id,
@@ -117,15 +118,62 @@ namespace CloudStorage
                                 UserId = fillesInputModel.UserId
                             };
 
-                            using (var fileStream = new FileStream(paths, FileMode.Create))
+                            filles.Fille = memoryStream.ToArray();
+                                // Копируем содержимое IFormFile в поток
+
+
+                            string path = AppDomain.CurrentDomain.BaseDirectory;
+                            string fileExtension = Path.GetExtension(filles.NameFille).Trim('.');
+                            filles.TypeFiles = fileExtension;
+                            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == filles.UserId);
+                            Console.WriteLine("Имя сохраняемого файла :" + filles.NameFille);
+                            Console.WriteLine("Длина  сохраняемого файла :" + filles.Fille.Length);
+                            Console.WriteLine("StoragePath  сохраняемого файла :" + filles.StoragePath);
+
+                            Console.WriteLine("Путь 1 :"+path);
+                            var paths = Path.Combine(path, user.Name);
+                            //!Directory.Exists(path + $"\\{user.Name}"
+                            if (!Directory.Exists(paths))
                             {
-                                await fillesInputModel.Fille.CopyToAsync(fileStream);
+
+                                Directory.CreateDirectory(paths);
+                                paths = Path.Combine(paths, Guid.NewGuid().ToString() + filles.NameFille);
+                                using (MemoryStream memoryStream1 = new MemoryStream(filles.Fille))
+                                {
+                                    Console.WriteLine("Путь 2 :" + paths);
+
+                                    //$"\\{user.Name}\\{Guid.NewGuid().ToString() + "_DATE_" + DATE + filles.NameFille}"
+                                    using (FileStream fileStream = new FileStream(paths, FileMode.OpenOrCreate))
+                                    {
+                                        await memoryStream1.CopyToAsync(fileStream);
+                                        filles.StoragePath = fileStream.Name;
+                                        filles.Size = fileStream.Length;
+                                    }
+                                }
+
+
+                                Console.WriteLine($"Папка успешно создана! {paths}");
                             }
+                            else
+                            {
+                                paths = Path.Combine(paths, Guid.NewGuid().ToString()  + filles.NameFille);
+                                using (MemoryStream memoryStream2 = new MemoryStream(filles.Fille))
+                                {
+                                    Console.WriteLine("Путь 2 :" + paths);
 
-                            await  _context.Filles.AddAsync(filles);
-                            await _context.SaveChangesAsync();
+                                    //$"\\{user.Name}\\{Guid.NewGuid().ToString() + "_DATE_" + DATE + filles.NameFille}
+                                    using (FileStream fileStream = new FileStream(paths, FileMode.OpenOrCreate))
+                                    {
+                                        await memoryStream2.CopyToAsync(fileStream);
+                                        filles.StoragePath = fileStream.Name;
 
-                            context.Response.StatusCode = 200;
+                                        filles.Size = fileStream.Length;
+                                    }
+                                }
+                                Console.WriteLine($"Папка с указанным путем уже существует: {paths}");
+                            }
+                            _context.Filles.Add(filles);
+                            await _context.SaveChangesAsync();                     
                             await context.Response.WriteAsJsonAsync(filles);
                         }
                     }

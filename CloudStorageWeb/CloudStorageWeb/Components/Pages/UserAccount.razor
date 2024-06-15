@@ -428,7 +428,7 @@ else
         try
         {
             string UrlGetRequest = Configuration.GetSection("UrlSettings")["UserApiUrl"] + "/upload";
-
+           
             string NameFile = e.File.Name;
             using (MemoryStream ms = new MemoryStream())
             {
