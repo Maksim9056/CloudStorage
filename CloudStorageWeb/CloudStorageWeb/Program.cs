@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Prometheus;
+using Serilog;
 namespace CloudStorageWeb
 {
     public class Program
@@ -43,7 +44,9 @@ namespace CloudStorageWeb
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
-
+            var log = new LoggerConfiguration().WriteTo
+            .WriteTo.Http("http://localhost:8080")
+           .CreateLogger();
 
             // Setup Prometheus metrics endpoint
             app.Use(async (context, next) =>
