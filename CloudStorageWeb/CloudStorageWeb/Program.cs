@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Prometheus;
 using Serilog;
+using Serilog.Sinks.Elasticsearch;
 namespace CloudStorageWeb
 {
     public class Program
@@ -26,7 +27,17 @@ namespace CloudStorageWeb
             builder.Services.AddRazorComponents()
                 .AddInteractiveServerComponents()
                 .AddInteractiveWebAssemblyComponents();
+            // Configure Serilog
+            Log.Logger = new LoggerConfiguration()
+                .ReadFrom.Configuration(configuration)
+                .WriteTo.Elasticsearch(new ElasticsearchSinkOptions(new Uri("http://localhost:9200"))
+                {
+                    AutoRegisterTemplate = true,
+                    IndexFormat = "logstash-{0:yyyy.MM.dd}"
+                })
+                .CreateLogger();
 
+            builder.Host.UseSerilog();
             builder.Services.AddHttpClient();
             //builder.Services.UseHttpClientMetrics();
 
@@ -44,9 +55,9 @@ namespace CloudStorageWeb
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
-            var log = new LoggerConfiguration().WriteTo
-            .WriteTo.Http("http://localhost:8080")
-           .CreateLogger();
+           // //var log = new LoggerConfiguration().WriteTo
+           // //.WriteTo.Http("http://localhost:8080")
+           //.CreateLogger();
 
             // Setup Prometheus metrics endpoint
             app.Use(async (context, next) =>
